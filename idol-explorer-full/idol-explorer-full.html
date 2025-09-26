@@ -91,20 +91,38 @@
     .idolWrap {
       position: relative;
       width: 100%;
-      border-radius: 12px;
+      border-radius: 14px;
+      /* slightly larger radius for a softer card look */
       overflow: hidden;
-      background: #f8fafc
+      background: linear-gradient(180deg, #fff6ef, #fff1e6);
+      /* warm paper tone */
+      box-shadow: 0 20px 45px rgba(8, 12, 20, 0.08);
+      border: 1px solid rgba(0, 0, 0, 0.04);
     }
 
     #imgWrap {
       position: relative;
-      padding: 10px
+      width: 100%;
+      height: min(72vh, 760px);
+      /* keeps composition tall on desktop, not enormous */
+      padding: 0;
+      /* remove extra padding so cover fills */
+      display: block;
     }
 
+
+    /* Make idol always cover the frame (like background-size:cover) */
     #idol {
+      display: block;
       width: 100%;
-      height: auto;
-      display: block
+      height: 100%;
+      object-fit: cover;
+      /* IMPORTANT: makes image cover and crop nicely */
+      object-position: center 38%;
+      /* shift focal area slightly upward — tweak as needed */
+      -webkit-filter: saturate(1.02) contrast(1.02);
+      /* subtle pop */
+      filter: saturate(1.02) contrast(1.02);
     }
 
     .hotspot {
@@ -116,7 +134,7 @@
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      z-index: 40
+      z-index: 60
     }
 
     .hsdot {
@@ -283,6 +301,42 @@
       transform: translateY(0)
     }
 
+    /* Orientation overlay: center the GIF and dim nicely */
+    #orientationOverlay {
+      position: fixed;
+      inset: 0;
+      display: none;
+      /* keep default - toggled in JS */
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.72);
+      z-index: 1000;
+      color: #fff;
+      text-align: center;
+      padding: 28px;
+      backdrop-filter: blur(4px);
+    }
+
+    #orientationOverlay img {
+      max-width: 340px;
+      width: 60%;
+      height: auto;
+    }
+
+    /* Make caption/footer a little cleaner and more compact */
+    .footer {
+      margin-top: 16px;
+      color: var(--muted);
+      font-size: 13px;
+      text-align: center;
+      opacity: 0.9;
+    }
+
+    /* Slightly reduce the heavy global card shadow so the idol shines */
+    .card {
+      box-shadow: 0 12px 30px rgba(2, 6, 23, 0.06);
+    }
+
     /* mobile overlay buttons (appear only on small screens) */
     .overlayButtons {
       display: none;
@@ -337,6 +391,24 @@
       border-radius: 8px;
       width: 100%;
       height: 30%;
+    }
+
+
+    /* Selfie preview shown after composite: make it large, crisp and readable */
+    .selfiePreview img {
+      max-width: 420px;
+      width: 36vw;
+      max-height: 420px;
+      border-radius: 999px;
+      /* perfect circle */
+      border: 6px solid rgba(255, 255, 255, 0.95);
+      /* strong white ring for contrast on dark selfies */
+      box-shadow: 0 18px 40px rgba(6, 12, 30, 0.32);
+      display: block;
+      margin: 18px auto 8px;
+      object-fit: cover;
+      background: #000;
+      /* fallback for dark selfies */
     }
 
     .closeBtn {
@@ -416,10 +488,12 @@
           <button class="btn" id="modeSawari">Discover Vahaans</button>
           <button class="btn" id="modeWeapons">Shakti &amp; Symbols</button>
           <button class="btn" id="modeGods">Name the Gods</button>
-          <button class="btn" id="modeDemons">Meet Demons</button>
+          <button class="btn" id="modeDemons">Meet Demon</button>
           <input id="childName" type="text" placeholder="Child name (optional)"
             style="padding:8px;border-radius:8px;border:1px solid #eee" />
           <button class="btn" id="downloadCert">Download Certificate</button>
+          <button id="startAudio">Start Dhak</button>
+
         </div>
       </div>
     </div>
@@ -489,6 +563,126 @@
   </div>
 
   <div id="toastRoot"></div>
+
+
+  <script>
+    /* CONFIG */
+    const DHAK_URL = 'assets/audio/dhak_loop.mp3'; // background loop
+    const DUCK_VOLUME = 0.02;      // volume while narration plays (0-1)
+    const NORMAL_VOLUME = 0.10;    // normal background volume (0-1)
+    const FADE_TIME = 0.25;        // seconds to fade in/out
+    /* END CONFIG */
+
+    let audioCtx, dhakSource, dhakGain;
+    const narrationElements = {}; // cache for HTMLAudioElements (per item)
+
+    /* create AudioContext and start dhak loop */
+    async function initAudio() {
+      if (audioCtx) return;
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+      // create dhak audio element (loop)
+      const dhakEl = new Audio(DHAK_URL);
+      dhakEl.loop = true;
+      await dhakEl.load();
+
+      // create media source and gain node
+      dhakSource = audioCtx.createMediaElementSource(dhakEl);
+      dhakGain = audioCtx.createGain();
+      dhakGain.gain.value = NORMAL_VOLUME;
+
+      // connect: dhak -> gain -> destination
+      dhakSource.connect(dhakGain).connect(audioCtx.destination);
+
+      // start playing (user gesture required -> startAudio button)
+      dhakEl.play().catch(e => console.warn('play blocked', e));
+
+      // keep element reference so we can stop if needed
+      dhakEl._isDhak = true;
+      window.__dhakEl = dhakEl;
+    }
+
+    /* Play narration for an item (id: e.g. 'lion') and duck dhak automatically */
+    function playNarration(id, srcUrl) {
+      // ensure AudioContext exists
+      if (!audioCtx) {
+        console.warn('Audio not initialized. Call initAudio() first.');
+        return;
+      }
+
+      // create or reuse HTMLAudioElement for narration
+      let el = narrationElements[id];
+      if (!el) {
+        el = new Audio(srcUrl);
+        el.preload = 'auto';
+        narrationElements[id] = el;
+
+        // Create and connect a media element source so its playback uses the same AudioContext
+        const src = audioCtx.createMediaElementSource(el);
+        // If you want further control over narration volume you can add a gain node:
+        const narrationGain = audioCtx.createGain();
+        narrationGain.gain.value = 1.0;
+        src.connect(narrationGain).connect(audioCtx.destination);
+      } else {
+        el.src = srcUrl; // in case you passed different language etc
+      }
+
+      // fade background down
+      const now = audioCtx.currentTime;
+      dhakGain.gain.cancelScheduledValues(now);
+      dhakGain.gain.setValueAtTime(dhakGain.gain.value, now);
+      dhakGain.gain.linearRampToValueAtTime(DUCK_VOLUME, now + FADE_TIME);
+
+      // play narration
+      el.currentTime = 0;
+      el.play().catch(e => console.warn('narration play blocked', e));
+
+      // when narration ends, restore dhak volume
+      el.onended = () => {
+        const t = audioCtx.currentTime;
+        dhakGain.gain.cancelScheduledValues(t);
+        dhakGain.gain.setValueAtTime(dhakGain.gain.value, t);
+        dhakGain.gain.linearRampToValueAtTime(NORMAL_VOLUME, t + FADE_TIME);
+      };
+    }
+
+    /* Hook start button (user gesture required by many browsers) */
+    document.getElementById('startAudio').addEventListener('click', async () => {
+      await initAudio();
+      // resume context on browsers that start it suspended
+      if (audioCtx.state === 'suspended') await audioCtx.resume();
+
+      // hide the button if you like
+
+
+      // document.getElementById('startAudio').innerHTML == 'Start Dhak' ? 'Stop Dhak' : 'Start Dhak';
+      if (window.__dhakEl) {
+        if (window.__dhakEl.paused) {
+          window.__dhakEl.play();
+          document.getElementById('startAudio').innerHTML = 'Stop Dhak';
+        } else {
+          window.__dhakEl.pause();
+          document.getElementById('startAudio').innerHTML = 'Start Dhak';
+        }
+      }
+
+
+    });
+
+
+    /* Example: attach to pointer events (replace with your pointer logic)
+       Suppose each interactive icon has data-audio attribute with the narration path.
+    */
+    document.addEventListener('click', (e) => {
+      const el = e.target.closest('[data-narration]');
+      if (!el) return;
+      const id = el.dataset.id || 'item';
+      const src = el.datasetNarration || el.dataset.narration; // depends how you set it
+      // play narration, dhak will duck automatically
+      playNarration(id, src);
+    });
+  </script>
+
 
   <script>
     /* -----------------------
@@ -629,7 +823,7 @@
         popup.style.left = (h.x * 100 - 10) + '%';
       }
       // popup.style.left = (h.x * 100) + '%';
-      popup.style.transform = 'translateX(-50%)';
+      // popup.style.transform = 'translateX(-50%)';
       popup.style.top = (Math.max(0, h.y * 100 - 6)) + '%';
       popup.style.transform = 'translate(-50%,-100%)';
       popup.style.background = '#fff';
@@ -643,7 +837,7 @@
       popup.style.zIndex = '60';
       popup.innerHTML = `<strong>${escapeHtml(t.label)}</strong><div style="font-size:13px;margin-top:6px">${escapeHtml(t.story)}</div>`;
       $('imgWrap').appendChild(popup);
-      setTimeout(() => popup.remove(), 5200);
+      setTimeout(() => popup.remove(), 8200);
 
       // try audio file first (explicit or computed)
       let played = false;
@@ -808,28 +1002,396 @@
       compositeSelfie(data);
     });
 
-    function compositeSelfie(dataUrl) {
-      const idol = $('idol');
+    // helper: convert dataURL to Blob (keeps original function name used earlier)
+    function dataURLToBlob(dataURL) {
+      const parts = dataURL.split(',');
+      const meta = parts[0].match(/:(.*?);/);
+      const mime = meta ? meta[1] : 'image/png';
+      const binary = atob(parts[1]);
+      const len = binary.length;
+      const u8 = new Uint8Array(len);
+      for (let i = 0; i < len; i++) u8[i] = binary.charCodeAt(i);
+      return new Blob([u8], { type: mime });
+    }
+
+    /**
+     * Fancy Instagram-ready composite
+     * dataUrl: selfie image dataURL (camera)
+     * opts: optional config
+     *  - filter: 'none'|'warm'|'vibrant'|'bw'
+     *  - format: 'square'|'4by5'|'landscape'
+     *  - download: boolean (auto trigger download)
+     */
+    function compositeSelfie(dataUrl, opts = {}) {
+
+      // choices for creditText
+      const choices = [
+        "May Maa Durga shower her divine blessings upon you today and always.",
+        "May your life be filled with happiness, prosperity, and good health",
+        "Wishing you a joyous and blessed Durga Puja!"
+      ];
+
+      // merge opts correctly
+      opts = Object.assign({
+        filter: 'vibrant',
+        format: '4by5',
+        download: false,
+        outputPx: 1600,         // base output size for longer edge (high-res)
+        circlePercent: 0.28,    // proportion of width used by selfie circle
+        dh: 30,                 // margin inside frame
+        fontFamily: "Genos",
+        fontWeight: "400",
+      }, opts || {});
+
+      // pick credit text if not passed in
+      if (!opts.creditText) {
+        opts.creditText = choices[Math.floor(Math.random() * choices.length)];
+      }
+
+      // compute default font size relative to outputPx if user didn't provide one
+      // tweak the multiplier (0.012 = smaller, 0.018 = medium, 0.025 = larger)
+      if (!opts.fontSize) {
+        opts.fontSize = Math.round(opts.outputPx * 0.012); // ~19px for 1600 base (small)
+      }
+
+      // Later, when drawing caption (replace your existing captions lines)
+      const fontSize = Math.max(12, Math.round(opts.fontSize)); // safety min
+
+
+
+      const idol = document.getElementById('idol');
+      if (!idol) return showToast && showToast('idol element not found');
+
+      // choose canvas aspect by format
+      let targetW = opts.outputPx;
+      let targetH;
+      if (opts.format === 'square') {
+        targetH = targetW;
+      } else if (opts.format === '4by5') {
+        targetH = Math.round(targetW * 5.2 / 4); // taller
+      } else { // landscape
+        targetH = Math.round(targetW * 9 / 16);
+      }
+
+      // retina scaling
+      const DPR = Math.max(1, window.devicePixelRatio || 1);
       const canvas = document.createElement('canvas');
-      const w = Math.max(900, idol.naturalWidth || 900);
-      const h = Math.max(600, idol.naturalHeight || 600);
-      canvas.width = w; canvas.height = h;
+      canvas.width = targetW * DPR;
+      canvas.height = targetH * DPR;
+      canvas.style.width = targetW + 'px';
+      canvas.style.height = targetH + 'px';
       const ctx = canvas.getContext('2d');
-      const idolImg = new Image(); idolImg.crossOrigin = 'anonymous'; idolImg.src = idol.src;
+      ctx.scale(DPR, DPR);
+
+      // Polaroid frame settings
+      const framePadding = Math.max(24, opts.dh); // outer white margin
+      const frameRadius = 18;
+      const polaroidInnerW = targetW - framePadding * 2;
+      const polaroidInnerH = targetH - framePadding * 2;
+      const bottomCaptionHeight = Math.round(polaroidInnerH * 0.18); // thicker bottom
+      const contentH = polaroidInnerH - bottomCaptionHeight;
+
+      // Load idol image then selfie
+      const idolImg = new Image();
+      idolImg.crossOrigin = 'anonymous';
+      idolImg.src = idol.src;
+
       idolImg.onload = () => {
-        ctx.drawImage(idolImg, 0, 0, w, h);
-        const selfie = new Image(); selfie.src = dataUrl;
+        // Draw paper background (subtle texture color)
+        ctx.fillStyle = "#0d0d0d"; // overall background (dark so polaroid pops)
+        ctx.fillRect(0, 0, targetW, targetH);
+
+        // Draw drop shadow for polaroid
+        const shadowX = 18, shadowY = 18;
+        ctx.save();
+        ctx.fillStyle = "rgba(0,0,0,0.36)";
+        roundRect(ctx, framePadding + shadowX, framePadding + shadowY, polaroidInnerW, polaroidInnerH, frameRadius);
+        ctx.fill();
+        ctx.restore();
+
+        // Draw white polaroid frame
+        ctx.save();
+        ctx.fillStyle = "#ffffff";
+        roundRect(ctx, framePadding, framePadding, polaroidInnerW, polaroidInnerH, frameRadius);
+        ctx.fill();
+        ctx.restore();
+
+        // Slight paper noise underlay (subtle off-white)
+        ctx.save();
+        ctx.globalCompositeOperation = 'multiply';
+        ctx.fillStyle = "rgba(250,250,250,0.04)";
+        ctx.fillRect(framePadding, framePadding, polaroidInnerW, polaroidInnerH);
+        ctx.restore();
+
+        // Draw idol as background image inside polaroid content (cover)
+        // We will fill the content area (left/top inside framePadding)
+        const contentX = framePadding + 16;
+        const contentY = framePadding + 16;
+        const contentW = polaroidInnerW - 12;
+        // place idol as cover within content area (crop to fill)
+        drawImageCover(ctx, idolImg, contentX, contentY, contentW, contentH);
+
+        // Put a subtle overlay (soft vignette) to focus center
+        drawVignette(ctx, contentX, contentY, contentW, contentH, 0.6);
+
+        // Now selfie circle placement
+        const sw = Math.floor(contentW * opts.circlePercent);
+        // preserve selfie aspect for circle clip - we'll fit by width
+        const sx = contentX + contentW - sw - 24;
+        const sy = contentY + contentH - sw - 24;
+
+        // draw circular selfie with small border and shadow
+        ctx.save();
+        // shadow for the circular portrait
+        ctx.beginPath();
+        ctx.arc(sx + sw / 2, sy + sw / 2, sw / 2 + 8, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(0,0,0,0.28)";
+        ctx.fill();
+        ctx.restore();
+
+        // clip to circle
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(sx + sw / 2, sy + sw / 2, sw / 2, 0, Math.PI * 2);
+        ctx.closePath();
+        ctx.clip();
+
+        // draw selfie (we need to load it)
+        const selfie = new Image();
+        selfie.crossOrigin = 'anonymous';
+        selfie.src = dataUrl;
         selfie.onload = () => {
-          const sw = Math.floor(w * 0.28); const sh = Math.floor(sw * (selfie.height / selfie.width));
-          const sx = w - sw - 40; const sy = h - sh - 40;
-          ctx.save(); ctx.beginPath(); ctx.arc(sx + sw / 2, sy + sh / 2, Math.min(sw, sh) / 2, 0, Math.PI * 2); ctx.closePath(); ctx.clip();
-          ctx.drawImage(selfie, sx, sy, sw, sh); ctx.restore();
-          lastComposite = canvas.toDataURL('image/png'); lastCompositeBlob = dataURLToBlob(lastComposite);
-          $('selfiePreview').innerHTML = `<img src="${lastComposite}" alt="Selfie Composite" style="max-width:320px;border-radius:10px">`;
-          showToast('Selfie composited');
+          // apply chosen filter using ctx.filter (supports modern browsers)
+          ctx.save();
+          // ctx.filter = filterToCanvasFilter(opts.filter);
+          // draw selfie centered and cover the circle area
+          ctx.filter = 'brightness(1.08) contrast(1.06)'
+          drawImageCover(ctx, selfie, sx, sy, sw, sw);
+          ctx.restore();
+
+          ctx.restore(); // exit clip
+
+          // draw thin stroke around circle
+          ctx.save();
+          ctx.beginPath();
+          ctx.arc(sx + sw / 2, sy + sw / 2, sw / 2 + 2.5, 0, Math.PI * 2);
+          ctx.strokeStyle = "rgba(255,255,255,0.95)";
+          ctx.lineWidth = 5;
+          ctx.stroke();
+          ctx.restore();
+
+          // draw decorative sticker top-left of polaroid content
+          drawSticker(ctx, contentX + 14, contentY + 14, 120, 40);
+
+          // film grain layer (subtle)
+          applyFilmGrain(ctx, contentX, contentY, contentW, contentH, 0.06);
+
+          // Polaroid caption area (bottom)
+          ctx.save();
+          ctx.fillStyle = "#f7f7f7";
+          const capX = contentX;
+          const capY = contentY + contentH;
+          const capW = contentW;
+          const capH = bottomCaptionHeight;
+          ctx.fillRect(capX, capY, capW, capH);
+
+          // caption text - credit
+          ctx.fillStyle = "#222";
+          const fontSize = Math.max(11, Math.round(capH * 0.22));
+          ctx.font = `${opts.fontWeight} ${fontSize}px ${opts.fontFamily}`;
+          ctx.textBaseline = 'middle';
+          ctx.textAlign = 'center';
+          const captionX = capX + capW / 2;
+          const captionY = capY + capH / 2;
+          // wrap if too long
+          wrapText(ctx, opts.creditText, captionX, captionY, capW - 24, fontSize + 6, { align: 'center' });
+          ctx.restore();
+
+          // small watermark bottom-right (semi-transparent)
+          ctx.save();
+          ctx.font = `400 ${Math.round(fontSize * 0.6)}px ${opts.fontFamily}`;
+          ctx.fillStyle = "rgba(0,0,0,0.18)";
+          const wm = "Powered by: Minu's Robotics & Coding Center, Kishanganj";
+          ctx.textAlign = 'right';
+          ctx.fillText(wm, contentX + contentW - 6, capY + capH - 8);
+          ctx.restore();
+
+          // final vignette over entire canvas for mood
+          globalVignette(ctx, 0.26);
+
+          // Export
+          const dataURL = canvas.toDataURL('image/png', 0.95);
+          lastComposite = dataURL;
+          lastCompositeBlob = dataURLToBlob(dataURL);
+          // show preview (small)
+          const preview = document.getElementById('selfiePreview');
+          if (preview) {
+            preview.innerHTML = `<img src="${dataURL}" alt="Selfie Composite" style="max-width:320px;border-radius:12px;box-shadow:0 6px 18px rgba(0,0,0,0.35)">`;
+          }
+          if (showToast) showToast('Fancy selfie composited — ready to share!');
+
+          // optionally auto-download
+          if (opts.download) {
+            const a = document.createElement('a');
+            a.href = dataURL;
+            a.download = `minu-selfie-${Date.now()}.png`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+          }
+        };
+        selfie.onerror = (e) => {
+          if (showToast) showToast('Could not load selfie image');
+          console.error(e);
         };
       };
+      idolImg.onerror = (e) => {
+        if (showToast) showToast('Could not load idol image');
+        console.error(e);
+      };
+
+      /* ---------------- helper functions ---------------- */
+
+      // Draw rounded rectangle
+      function roundRect(ctx, x, y, w, h, r) {
+        const radius = r;
+        ctx.beginPath();
+        ctx.moveTo(x + radius, y);
+        ctx.lineTo(x + w - radius, y);
+        ctx.quadraticCurveTo(x + w, y, x + w, y + radius);
+        ctx.lineTo(x + w, y + h - radius);
+        ctx.quadraticCurveTo(x + w, y + h, x + w - radius, y + h);
+        ctx.lineTo(x + radius, y + h);
+        ctx.quadraticCurveTo(x, y + h, x, y + h - radius);
+        ctx.lineTo(x, y + radius);
+        ctx.quadraticCurveTo(x, y, x + radius, y);
+        ctx.closePath();
+      }
+
+      // Draw image cover (like background-size: cover)
+      function drawImageCover(ctx, img, x, y, w, h) {
+        const iw = img.width, ih = img.height;
+        if (!iw || !ih) {
+          // fallback fill
+          ctx.fillStyle = '#ddd';
+          ctx.fillRect(x, y, w, h);
+          return;
+        }
+        const scale = Math.max(w / iw, h / ih);
+        const nw = iw * scale;
+        const nh = ih * scale;
+        const cx = (w - nw) / 2;
+        const cy = (h - nh) / 2;
+        ctx.drawImage(img, x + cx, y + cy, nw, nh);
+      }
+
+      // small sticker (you can replace by drawing an image)
+      function drawSticker(ctx, x, y, w, h) {
+        // rounded colored sticker
+        ctx.save();
+        roundRect(ctx, x, y, w, h, 12);
+        ctx.fillStyle = "#ffd54a";
+        ctx.fill();
+        // text
+        ctx.fillStyle = "#1b1b1b";
+        ctx.font = `600 ${Math.max(12, Math.round(h * 0.45))}px ${opts.fontFamily}`;
+        ctx.textBaseline = 'middle';
+        ctx.textAlign = 'center';
+        ctx.fillText("Jai Ma Durga", x + w / 2, y + h / 2);
+        ctx.restore();
+      }
+
+      // film grain by drawing many small semi-random shapes (cheap)
+      function applyFilmGrain(ctx, x, y, w, h, intensity = 0.04) {
+        const alpha = Math.max(0.01, Math.min(0.12, intensity));
+        const count = Math.round((w * h) * (alpha * 0.0009));
+        const imgData = ctx.getImageData(x, y, w, h);
+        for (let i = 0; i < count; i++) {
+          const rx = Math.floor(Math.random() * w);
+          const ry = Math.floor(Math.random() * h);
+          const off = ((ry * w) + rx) * 4;
+          const v = (Math.random() * 40 - 20) | 0;
+          imgData.data[off] = clamp(imgData.data[off] + v, 0, 255);
+          imgData.data[off + 1] = clamp(imgData.data[off + 1] + v, 0, 255);
+          imgData.data[off + 2] = clamp(imgData.data[off + 2] + v, 0, 255);
+          // alpha kept
+        }
+        ctx.putImageData(imgData, x, y);
+      }
+
+      function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+
+      // draw soft vignette for content box
+      function drawVignette(ctx, x, y, w, h, darkness = 0.55) {
+        const cx = x + w / 2, cy = y + h / 2;
+        const rx = w * 0.6, ry = h * 0.6;
+        const grad = ctx.createRadialGradient(cx, cy, Math.min(w, h) * 0.05, cx, cy, Math.max(rx, ry));
+        grad.addColorStop(0, 'rgba(0,0,0,0)');
+        grad.addColorStop(0.7, `rgba(0,0,0,${darkness * 0.45})`);
+        grad.addColorStop(1, `rgba(0,0,0,${darkness})`);
+        ctx.save();
+        ctx.globalCompositeOperation = 'multiply';
+        ctx.fillStyle = grad;
+        ctx.fillRect(x, y, w, h);
+        ctx.restore();
+      }
+
+      // global vignette across canvas
+      function globalVignette(ctx, darkness = 0.5) {
+        const w = targetW, h = targetH;
+        const grad = ctx.createRadialGradient(w / 2, h / 2, Math.min(w, h) * 0.3, w / 2, h / 2, Math.max(w, h));
+        grad.addColorStop(0, 'rgba(0,0,0,0)');
+        grad.addColorStop(0.8, `rgba(0,0,0,${darkness * 0.25})`);
+        grad.addColorStop(1, `rgba(0,0,0,${darkness * 0.6})`);
+        ctx.save();
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, w, h);
+        ctx.restore();
+      }
+
+      // convert logical filter code to canvas filter string
+      function filterToCanvasFilter(name) {
+        switch ((name || '').toLowerCase()) {
+          case 'warm':
+            // slightly warm + boost contrast
+            return 'contrast(1.08) saturate(1.06) sepia(0.12) hue-rotate(-6deg)';
+          case 'vibrant':
+            return 'contrast(1.08) saturate(1.18) brightness(1.02)';
+          case 'bw':
+          case 'mono':
+            return 'grayscale(1) contrast(1.05)';
+          default:
+            return 'none';
+        }
+      }
+
+      // wrapText - center or left aligned multiline text
+      function wrapText(ctx, text, x, y, maxWidth, lineHeight, opts = {}) {
+        opts = Object.assign({ align: 'left' }, opts);
+        const words = text.split(' ');
+        let line = '';
+        const lines = [];
+        for (let n = 0; n < words.length; n++) {
+          const testLine = line + words[n] + ' ';
+          const metrics = ctx.measureText(testLine);
+          if (metrics.width > maxWidth && n > 0) {
+            lines.push(line.trim());
+            line = words[n] + ' ';
+          } else {
+            line = testLine;
+          }
+        }
+        lines.push(line.trim());
+        const totalH = lines.length * lineHeight;
+        let startY = y - totalH / 2 + lineHeight / 2;
+        for (let i = 0; i < lines.length; i++) {
+          const tx = x;
+          ctx.textAlign = opts.align;
+          ctx.fillText(lines[i], tx, startY + i * lineHeight);
+        }
+      }
     }
+
 
     /* -----------------------
        Orientation helper
