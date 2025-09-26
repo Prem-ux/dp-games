@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Idol Explorer — Full</title>
+  <style>
+    :root {
+      --accent: #ff6f00;
+      --muted: #6b7280
+    }
+
+    body {
+      margin: 0;
+      font-family: Inter, Arial, system-ui;
+      background: linear-gradient(180deg, #fff7ed, #fff1e6);
+      color: #071122;
+      display: flex;
+      justify-content: center;
+      padding: 18px
+    }
+
+    .wrap {
+      width: 100%;
+      max-width: 1100px
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap
+    }
+
+    .controls {
+      display: flex;
+      gap: 8px;
+      align-items: center
+    }
+
+    .btn {
+      background: var(--accent);
+      color: #fff;
+      padding: 12px 16px;
+      border-radius: 14px;
+      border: none;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12)
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 14px;
+      padding: 16px;
+      margin-top: 12px;
+      box-shadow: 0 10px 30px rgba(2, 6, 23, 0.06)
+    }
+
+    .imgWrap {
+      position: relative;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #f8fafc
+    }
+
+    #idol {
+      width: 100%;
+      height: auto;
+      display: block
+    }
+
+    .hotspot {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      width: 56px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer
+    }
+
+    .hsdot {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: linear-gradient(90deg, var(--accent), #ffb74d);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 6px 18px rgba(255, 152, 0, 0.12)
+    }
+
+    .hsdot img {
+      width: 28px;
+      height: 28px
+    }
+
+    .collection {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 12px
+    }
+
+    .badge {
+      background: #fff;
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid #f1e0d0
+    }
+
+    .footer {
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: 13px;
+      text-align: center
+    }
+
+    .confettiWrap {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 600;
+      display: none
+    }
+
+    .particle {
+      position: absolute;
+      font-size: 28px;
+      animation: fall 3.2s linear forwards;
+      opacity: 0.95
+    }
+
+    @keyframes fall {
+      0% {
+        transform: translateY(-20vh) rotate(0deg);
+        opacity: 1
+      }
+
+      100% {
+        transform: translateY(110vh) rotate(720deg);
+        opacity: 0
+      }
+    }
+
+    .quizPopup {
+      position: fixed;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      background: #fff;
+      color: #071122;
+      padding: 16px;
+      border-radius: 12px;
+      box-shadow: 0 20px 50px rgba(2, 6, 23, 0.15);
+      display: none;
+      z-index: 700
+    }
+
+    .quizPopup button {
+      margin-top: 8px;
+      background: var(--accent);
+      border: none;
+      padding: 8px 10px;
+      color: white;
+      border-radius: 8px;
+      cursor: pointer
+    }
+
+    .langIndicator {
+      margin-left: 8px;
+      padding: 6px 8px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 12px;
+      background: #fff4f4;
+      color: #8b0000;
+      border: 1px solid rgba(0, 0, 0, 0.04)
+    }
+
+    .toast {
+      position: fixed;
+      right: 16px;
+      bottom: 18px;
+      background: rgba(2, 6, 23, 0.92);
+      color: #fff;
+      padding: 10px 14px;
+      border-radius: 8px;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+      z-index: 9999;
+      font-weight: 700;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: 0.28s
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0)
+    }
+
+    .selfiePreview {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin-top: 12px
+    }
+
+    .selfiePreview img {
+      max-width: 260px;
+      border-radius: 10px;
+      box-shadow: 0 8px 20px rgba(2, 6, 23, 0.06)
+    }
+
+    @media(max-width:720px) {
+      .header {
+        flex-direction: column;
+        align-items: flex-start
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="header">
+      <div>
+        <h1 id="siteTitle">Idol Explorer — Full</h1>
+        <div style="color:var(--muted);font-size:14px">Interactive, multilingual, editable — designed for puja education
+        </div>
+      </div>
+      <div class="controls">
+        <select id="langSel" aria-label="Language">
+          <option value="en">English</option>
+          <option value="hi">हिन्दी</option>
+          <option value="bn">বাংলা</option>
+        </select>
+        <span id="voiceIndicator" class="langIndicator">checking…</span>
+        <button class="btn" id="modeSawari">Discover Vahaans</button>
+        <button class="btn" id="modeWeapons">Discover Weapons</button>
+        <button class="btn" id="modeGods">Name the Gods</button>
+        <input id="childName" placeholder="Child name (optional)"
+          style="padding:8px;border-radius:8px;border:1px solid #eee" />
+        <button class="btn" id="downloadCert">Download Certificate</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="imgWrap" id="imgWrap" style="padding:10px"><img id="idol" src="assets/durga.jpg" alt="Durga Idol">
+      </div>
+      <div style="margin-top:12px;display:flex;align-items:center;gap:12px">
+        <div style="font-weight:800">Mode: <span id="currentMode">Sawari</span></div>
+        <div style="flex:1;background:#eef2f7;height:12px;border-radius:999px;overflow:hidden">
+          <div id="progressFill" style="height:100%;width:0;background:linear-gradient(90deg,#ffb74d,var(--accent))">
+          </div>
+        </div>
+        <div id="progressCount" style="min-width:80px;text-align:right;font-weight:700">0 / 0</div>
+      </div>
+      <div class="collection" id="collectionArea" aria-live="polite"></div>
+      <div style="margin-top:12px;display:flex;gap:8px;align-items:center"><button class="btn" id="selfieBtn">Take
+          Selfie & Overlay</button><button class="btn" id="shareBtn">Download & Share</button>
+        <div style="flex:1"></div>
+      </div>
+      <div class="selfiePreview" id="selfiePreview" aria-hidden="true"></div>
+      <div class="footer">Designed by Minu's Robotics & Coding — replace assets/hotspots.json to edit content.</div>
+    </div>
+  </div>
+  <div class="confettiWrap" id="confettiWrap"></div>
+  <div class="quizPopup" id="quizPopup">
+    <div id="quizQ" style="font-weight:900"></div>
+    <div style="margin-top:8px"><button id="optA"></button><button id="optB" style="margin-left:8px"></button></div>
+    <div style="margin-top:10px;text-align:right"><button onclick="closeQuiz()"
+        style="background:#eee;padding:8px;border-radius:8px;border:none">Close</button></div>
+  </div>
+  <div id="toastRoot"></div>
+  <script>
+    // simple app loader: loads hotspots.json and wires UI
+    let HOTSPOTS = {};
+    fetch('assets/hotspots.json').then(r => r.json()).then(j => { HOTSPOTS = j; init(); }).catch(e => { console.error('hotspots load failed', e); alert('hotspots.json load failed'); });
+
+    let mode = 'sawari'; let found = { sawari: new Set(), weapons: new Set(), gods: new Set() };
+
+    function $(id) { return document.getElementById(id); }
+    function showToast(msg, timeout = 3000) { const el = document.createElement('div'); el.className = 'toast'; el.textContent = msg; document.body.appendChild(el); setTimeout(() => el.classList.add('show'), 50); setTimeout(() => { el.classList.remove('show'); setTimeout(() => el.remove(), 300); }, timeout); }
+
+    // TTS helpers
+    let AVAILABLE_VOICES = [];
+    function refreshVoices() { AVAILABLE_VOICES = window.speechSynthesis.getVoices() || []; updateVoiceIndicator(); }
+    if ('speechSynthesis' in window) { refreshVoices(); window.speechSynthesis.onvoiceschanged = refreshVoices; setTimeout(refreshVoices, 400); }
+    function pickVoiceForLang(langCode) { if (!AVAILABLE_VOICES.length) return null; const pref = (langCode === 'hi') ? 'hi' : (langCode === 'bn') ? 'bn' : 'en'; let v = AVAILABLE_VOICES.find(vc => vc.lang && vc.lang.toLowerCase().startsWith(pref)); if (!v) v = AVAILABLE_VOICES.find(vc => vc.lang && vc.lang.toLowerCase().includes(pref)); return v || null; }
+    function sanitizeForTTS(text) { if (!text) return text; return text.replace(/;/g, ',').replace(/:/g, ',').replace(/\n+/g, ' ').replace(/\r/g, ' ').replace(/\s{2,}/g, ' ').trim(); }
+    function speakText(text, lang) { try { if (!text) return; if (!('speechSynthesis' in window)) return; const code = lang || 'en'; const clean = sanitizeForTTS(text); const u = new SpeechSynthesisUtterance(clean); const v = pickVoiceForLang(code); if (v) { u.voice = v; u.lang = v.lang || (code === 'hi' ? 'hi-IN' : code === 'bn' ? 'bn-IN' : 'en-IN'); } else { u.lang = (code === 'hi' ? 'hi-IN' : code === 'bn' ? 'bn-IN' : 'en-IN'); } u.rate = 0.95; u.pitch = 1.0; window.speechSynthesis.cancel(); window.speechSynthesis.speak(u); } catch (e) { console.error('TTS', e); } }
+    function updateVoiceIndicator() { const ind = $('voiceIndicator'); if (!ind) return; const lang = ($('langSel') && $('langSel').value) ? $('langSel').value : 'en'; const v = pickVoiceForLang(lang); if (v) { ind.textContent = lang.toUpperCase() + ' voice ✓'; ind.style.background = '#e6ffed'; ind.style.color = '#0b6b2f'; } else { ind.textContent = lang.toUpperCase() + ' voice ✕ (fallback)'; ind.style.background = '#fff4f4'; ind.style.color = '#8b0000'; } }
+    document.addEventListener('change', (e) => { if (e.target && e.target.id === 'langSel') updateVoiceIndicator(); });
+
+    // UI & hotspots
+    function makeHotspot(h) { const el = document.createElement('div'); el.className = 'hotspot'; el.style.left = (h.x * 100) + '%'; el.style.top = (h.y * 100) + '%'; const dot = document.createElement('div'); dot.className = 'hsdot'; const img = document.createElement('img'); img.src = h.icon; img.alt = h.id; dot.appendChild(img); el.appendChild(dot); el.addEventListener('click', () => onHotspotClick(h)); return el; }
+    function renderHotspots() { const wrap = $('imgWrap'); wrap.querySelectorAll('.hotspot').forEach(n => n.remove()); (HOTSPOTS[mode] || []).forEach(h => wrap.appendChild(makeHotspot(h))); updateProgress(); }
+    function getTextFor(h) { const lang = ($('langSel') && $('langSel').value) ? $('langSel').value : 'en'; if (lang === 'hi') return { label: h.label_hi || h.label_en || h.id, story: h.story_hi || h.story_en || '' }; if (lang === 'bn') return { label: h.label_bn || h.label_en || h.id, story: h.story_bn || h.story_en || '' }; return { label: h.label_en || h.label || h.id, story: h.story_en || h.story || '' }; }
+
+    function onHotspotClick(h) { const t = getTextFor(h); const selectedLang = ($('langSel') && $('langSel').value) ? $('langSel').value : 'en'; const popup = document.createElement('div'); popup.style.position = 'absolute'; popup.style.left = (h.x * 100) + '%'; popup.style.top = (h.y * 100 - 6) + '%'; popup.style.transform = 'translate(-50%,-100%)'; popup.style.background = '#fff'; popup.style.color = '#071122'; popup.style.padding = '10px'; popup.style.borderRadius = '8px'; popup.style.boxShadow = '0 8px 24px rgba(2,6,23,0.12)'; popup.innerHTML = '<strong>' + t.label + '</strong><div style="font-size:13px;margin-top:6px">' + t.story + '</div>'; $('imgWrap').appendChild(popup); setTimeout(() => popup.remove(), 5200); const audioField = 'audio_' + selectedLang; if (h[audioField]) { try { const a = new Audio(h[audioField]); a.play(); } catch (e) { console.warn('audio play failed', e); speakText(t.story, selectedLang); } } else { const v = pickVoiceForLang(selectedLang); if (!v) showToast(selectedLang.toUpperCase() + ' voice not available — using fallback'); speakText(t.story, selectedLang); } markFound(h); }
+
+    function markFound(h) { if (found[mode].has(h.id)) return; found[mode].add(h.id); addBadge(h); updateProgress(); if (found[mode].size >= (HOTSPOTS[mode] || []).length) { celebrate(); setTimeout(() => openQuizForMode(mode), 550); } }
+    function addBadge(h) { const key = mode + '-' + h.id; if (document.getElementById(key)) return; const b = document.createElement('div'); b.className = 'badge'; b.id = key; const t = getTextFor(h); b.innerHTML = '<img src="' + h.icon + '" style="width:28px;height:28px;border-radius:6px;margin-right:8px"/>' + t.label; $('collectionArea').appendChild(b); }
+    function updateProgress() { const got = found[mode].size; const total = (HOTSPOTS[mode] || []).length; const pct = total ? (got / total * 100) : 0; $('progressFill').style.width = pct + '%'; $('progressCount').textContent = got + ' / ' + total; $('currentMode').textContent = mode.charAt(0).toUpperCase() + mode.slice(1); }
+
+    function celebrate() { const wrap = $('confettiWrap'); wrap.innerHTML = ''; wrap.style.display = 'block'; const colors = ['#ff5252', '#ffd54a', '#4dd0e1', '#a5d6a7', '#ce93d8']; for (let i = 0; i < 20; i++) { const p = document.createElement('div'); p.className = 'particle'; p.style.left = (Math.random() * 100) + '%'; p.style.top = '-10%'; p.style.color = colors[i % colors.length]; p.style.fontSize = (12 + Math.random() * 28) + 'px'; p.textContent = ['🎉', '✨', '🎊', '🍃', '🪔'][i % 5]; p.style.animationDuration = (2.5 + Math.random() * 1.5) + 's'; wrap.appendChild(p); } setTimeout(() => { wrap.innerHTML = ''; wrap.style.display = 'none'; }, 3600); }
+
+    // quiz
+    function openQuizForMode(m) { let q; if (m === 'sawari') q = { q: 'Who rides the peacock?', a: 'Kartikeya', b: 'Lakshmi', ans: 'Kartikeya' }; else if (m === 'weapons') q = { q: 'What does the Trishul destroy?', a: 'Evil', b: 'Flowers', ans: 'Evil' }; else q = { q: 'Who is the goddess of knowledge?', a: 'Saraswati', b: 'Lakshmi', ans: 'Saraswati' }; $('quizQ').textContent = q.q; $('optA').textContent = q.a; $('optB').textContent = q.b; $('optA').onclick = () => checkQuiz(q.a, q.ans); $('optB').onclick = () => checkQuiz(q.b, q.ans); $('quizPopup').style.display = 'block'; }
+    function checkQuiz(choice, ans) { if (choice === ans) showToast('Correct! Bonus unlocked.'); else showToast('Not quite — try another mode!'); closeQuiz(); }
+    function closeQuiz() { $('quizPopup').style.display = 'none'; }
+
+    // certificate
+    function downloadCertificate() { const child = ($('childName') && $('childName').value) ? $('childName').value : 'Young Explorer'; const c = document.createElement('canvas'); c.width = 1200; c.height = 675; const ctx = c.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, c.height); ctx.fillStyle = '#071122'; ctx.font = '36px sans-serif'; ctx.fillText('Certificate of Exploration', 50, 70); ctx.font = '24px sans-serif'; ctx.fillText('Awarded to: ' + child, 50, 120); ctx.font = '18px sans-serif'; ctx.fillText('Badges:', 50, 160); let y = 200; const items = Array.from($('collectionArea').children).map(c => c.textContent.trim()); if (items.length) { ctx.font = '20px sans-serif'; items.forEach(it => { ctx.fillText('• ' + it, 60, y); y += 34; }); } else { ctx.fillStyle = '#444'; ctx.font = '18px sans-serif'; ctx.fillText('No badges collected yet.', 50, y); } ctx.fillStyle = '#666'; ctx.font = '14px sans-serif'; ctx.fillText("Minu's Robotics & Coding - Happy Puja!", 50, c.height - 40); const url = c.toDataURL('image/png'); const a = document.createElement('a'); a.href = url; a.download = 'certificate-' + child.replace(/\s+/g, '_') + '.png'; a.click(); }
+
+    // selfie capture (simple)
+    let lastComposite = null;
+    document.addEventListener('click', function (e) { if (e.target && e.target.id === 'selfieBtn') { startSelfieCapture(); } if (e.target && e.target.id === 'shareBtn') { if (lastComposite) { const a = document.createElement('a'); a.href = lastComposite; a.download = 'selfie_overlay.png'; a.click(); } else { showToast('Take a selfie first'); } } });
+
+    function startSelfieCapture() { navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } }).then(stream => { const v = document.createElement('video'); v.autoplay = true; v.playsInline = true; v.srcObject = stream; const overlay = document.createElement('div'); overlay.style.position = 'fixed'; overlay.style.inset = 0; overlay.style.background = 'rgba(0,0,0,0.6)'; overlay.style.display = 'flex'; overlay.style.alignItems = 'center'; overlay.style.justifyContent = 'center'; overlay.style.zIndex = 9999; const card = document.createElement('div'); card.style.background = '#fff'; card.style.padding = '10px'; card.style.borderRadius = '10px'; v.style.maxWidth = '420px'; const btn = document.createElement('button'); btn.textContent = 'Capture'; btn.className = 'btn'; card.appendChild(v); card.appendChild(btn); overlay.appendChild(card); document.body.appendChild(overlay); btn.onclick = () => { const w = v.videoWidth, h = v.videoHeight; const c = document.createElement('canvas'); c.width = w; c.height = h; const ctx = c.getContext('2d'); ctx.drawImage(v, 0, 0, w, h); stream.getTracks().forEach(t => t.stop()); overlay.remove(); const data = c.toDataURL('image/png'); compositeSelfie(data); }; }).catch(e => { showToast('Camera unavailable'); }); }
+
+    function compositeSelfie(dataUrl) { const idol = document.getElementById('idol'); const c = document.createElement('canvas'); const w = Math.max(900, idol.naturalWidth || 900); const h = Math.max(600, idol.naturalHeight || 600); c.width = w; c.height = h; const ctx = c.getContext('2d'); const idolImg = new Image(); idolImg.src = idol.src; idolImg.onload = () => { ctx.drawImage(idolImg, 0, 0, w, h); const selfie = new Image(); selfie.src = dataUrl; selfie.onload = () => { const sw = Math.floor(w * 0.28); const sh = Math.floor(sw * (selfie.height / selfie.width)); const sx = w - sw - 40; const sy = h - sh - 40; ctx.save(); ctx.beginPath(); ctx.arc(sx + sw / 2, sy + sh / 2, Math.min(sw, sh) / 2, 0, Math.PI * 2); ctx.closePath(); ctx.clip(); ctx.drawImage(selfie, sx, sy, sw, sh); ctx.restore(); lastComposite = c.toDataURL('image/png'); const pp = document.getElementById('selfiePreview'); pp.innerHTML = '<img src="' + lastComposite + '">'; showToast('Selfie composited'); }; }; }
+
+    // init after load
+    function init() { document.getElementById('siteTitle').textContent = 'Idol Explorer — Full'; document.getElementById('modeSawari').addEventListener('click', () => { mode = 'sawari'; renderHotspots(); }); document.getElementById('modeWeapons').addEventListener('click', () => { mode = 'weapons'; renderHotspots(); }); document.getElementById('modeGods').addEventListener('click', () => { mode = 'gods'; renderHotspots(); }); document.getElementById('downloadCert').addEventListener('click', downloadCertificate); renderHotspots(); updateProgress(); updateVoiceIndicator(); }
+  </script>
+</body>
+
+</html>
