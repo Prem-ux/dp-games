@@ -631,6 +631,19 @@
       };
     }
 
+    function checkOrientation() {
+      if (window.innerHeight > window.innerWidth) {
+        // Portrait
+        document.getElementById('orientationOverlay').style.display = 'flex';
+      } else {
+        // Landscape
+        document.getElementById('orientationOverlay').style.display = 'none';
+      }
+    }
+    window.addEventListener('resize', checkOrientation);
+    window.addEventListener('orientationchange', checkOrientation);
+    window.addEventListener('load', checkOrientation);
+
     // init after load
     function init() {
       document.getElementById('siteTitle').textContent = 'Idol Explorer — Full';
