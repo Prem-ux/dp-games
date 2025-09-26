@@ -1,0 +1,432 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Minu's Function Builder — Coding Game</title>
+    <style>
+        :root {
+            --bg: #071126;
+            --card: #f6f9fc;
+            --accent: #4a90e2;
+            --muted: #6b7280
+        }
+
+        body {
+            margin: 0;
+            font-family: system-ui, Segoe UI, Roboto, Arial;
+            background: var(--bg);
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 14px
+        }
+
+        .wrap {
+            width: 100%;
+            max-width: 760px
+        }
+
+        header {
+            margin-bottom: 12px;
+            text-align: center
+        }
+
+        h1 {
+            margin: 6px 0;
+            font-size: 20px
+        }
+
+        p.lead {
+            margin: 0;
+            color: #bcd0ea
+        }
+
+        .card {
+            background: var(--card);
+            color: #071126;
+            border-radius: 12px;
+            padding: 12px;
+            margin-top: 10px
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 6px;
+            margin: 10px auto;
+            max-width: 360px
+        }
+
+        .cell {
+            background: #fff;
+            border-radius: 8px;
+            height: 96px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            box-shadow: 0 2px 6px rgba(2, 6, 23, 0.06)
+        }
+
+        .cell.robot {
+            background: linear-gradient(135deg, #eef6ff, #dbefff)
+        }
+
+        .cell.goal {
+            background: linear-gradient(135deg, #fff6db, #ffe9a8)
+        }
+
+        .controls {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 8px
+        }
+
+        .btn {
+            background: var(--accent);
+            color: #fff;
+            padding: 10px 14px;
+            border-radius: 10px;
+            border: none;
+            font-weight: 700
+        }
+
+        .slotRow {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin-top: 10px;
+            flex-wrap: wrap
+        }
+
+        .slot {
+            width: 56px;
+            height: 56px;
+            border-radius: 8px;
+            background: #f0f3f6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #334155;
+            font-weight: 700
+        }
+
+        .small {
+            width: 44px;
+            height: 44px
+        }
+
+        .label {
+            font-size: 14px;
+            color: #475569;
+            margin-top: 8px;
+            text-align: center
+        }
+
+        .timer {
+            background: #ffd54a;
+            color: #071126;
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-weight: 700;
+            margin-left: 8px
+        }
+
+        .overlay {
+            position: fixed;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 200
+        }
+
+        .popup {
+            background: var(--card);
+            color: #071126;
+            padding: 18px;
+            border-radius: 12px;
+            text-align: center;
+            max-width: 360px
+        }
+
+        footer {
+            margin-top: 12px;
+            color: #9fb0d6;
+            font-size: 13px;
+            text-align: center
+        }
+
+        @media(max-width:420px) {
+            .cell {
+                height: 72px;
+                font-size: 22px
+            }
+
+            .slot {
+                width: 44px;
+                height: 44px
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrap">
+        <header>
+            <h1>Function Builder — Reuse your Code!</h1>
+            <p class="lead">Build a short function (1–3 steps), then place calls to it. Use calls to reach the star.
+                Solve within 60s to win the blessing!</p>
+        </header>
+
+        <div class="card">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+                <div style="display:flex;align-items:center;gap:8px">
+                    <div style="font-weight:700">Time left:</div>
+                    <div class="timer" id="timer">60</div>
+                </div>
+                <div style="text-align:right">
+                    <div style="font-size:13px;color:#475569">Function length: <strong id="fnLen">0</strong> / 3</div>
+                    <div style="font-size:12px;color:#6b7280">Calls available: <strong id="callCount">3</strong></div>
+                </div>
+            </div>
+
+            <div
+                style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-start;justify-content:center;margin-top:12px">
+                <div>
+                    <div class="label">Grid</div>
+                    <div class="grid" id="grid">
+                        <!-- 3x3 cells -->
+                    </div>
+                </div>
+
+                <div style="min-width:220px">
+                    <div class="label">Build Function (tap arrows)</div>
+                    <div class="slotRow" id="fnSlots">
+                        <!-- function slots -->
+                    </div>
+
+                    <div class="label" style="margin-top:12px">Place Calls (tap to add)</div>
+                    <div class="slotRow" id="callSlots">
+                        <!-- call slots -->
+                    </div>
+
+                    <div class="controls" style="margin-top:14px">
+                        <button class="btn" data-action="up">↑</button>
+                        <button class="btn" data-action="left">←</button>
+                        <button class="btn" data-action="down">↓</button>
+                        <button class="btn" data-action="right">→</button>
+                        <button class="btn" id="clearFn">Clear Fn</button>
+                    </div>
+
+                    <div class="controls" style="margin-top:10px">
+                        <button class="btn" id="runBtn">Run</button>
+                        <button class="btn" id="newBtn">New Puzzle</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer>Teach reuse: functions are short routines you call many times. Good luck, Super Coder!</footer>
+    </div>
+
+    <div class="overlay" id="overlay">
+        <div class="popup" id="popup">
+            <div id="popupContent"></div>
+            <div style="margin-top:12px"><button class="btn" id="closePopup">Close</button></div>
+        </div>
+    </div>
+
+    <script>
+        // Function Builder Game JS
+        // Grid indices: 0..8, rows=3
+        let gridEl = document.getElementById('grid');
+        let fnSlotsEl = document.getElementById('fnSlots');
+        let callSlotsEl = document.getElementById('callSlots');
+        let timerEl = document.getElementById('timer');
+        let fnLenEl = document.getElementById('fnLen');
+        let callCountEl = document.getElementById('callCount');
+        let overlay = document.getElementById('overlay');
+        let popupContent = document.getElementById('popupContent');
+
+        let robotPos = 6, goalPos = 2; // set in newPuzzle
+        let fnSlots = []; // up to 3 actions
+        let callSlots = [null, null, null]; // up to 3 calls (each null or 'call')
+        let maxFn = 3;
+        let timeLeft = 60, timerId = null;
+
+        function createGrid() {
+            gridEl.innerHTML = '';
+            for (let i = 0; i < 9; i++) {
+                const d = document.createElement('div');
+                d.className = 'cell';
+                d.dataset.idx = i;
+                gridEl.appendChild(d);
+            }
+        }
+        function renderGrid(pos) {
+            for (let i = 0; i < 9; i++) {
+                const c = gridEl.children[i];
+                c.className = 'cell';
+                c.innerHTML = '';
+            }
+            gridEl.children[goalPos].classList.add('goal'); gridEl.children[goalPos].innerHTML = '⭐';
+            gridEl.children[pos].classList.add('robot'); gridEl.children[pos].innerHTML = '🤖';
+        }
+
+        function renderFn() {
+            fnSlotsEl.innerHTML = '';
+            for (let i = 0; i < maxFn; i++) {
+                const s = document.createElement('div'); s.className = 'slot' + (i >= 3 ? ' small' : '');
+                if (fnSlots[i]) s.textContent = arrowSym(fnSlots[i]);
+                else s.textContent = '';
+                fnSlotsEl.appendChild(s);
+            }
+            fnLenEl.textContent = fnSlots.filter(Boolean).length;
+        }
+        function renderCalls() {
+            callSlotsEl.innerHTML = '';
+            for (let i = 0; i < callSlots.length; i++) {
+                const s = document.createElement('div'); s.className = 'slot small';
+                s.dataset.idx = i;
+                s.style.cursor = 'pointer';
+                s.addEventListener('click', () => {
+                    // toggle call on/off
+                    if (callSlots[i]) callSlots[i] = null; else {
+                        // only allow if function not empty
+                        if (fnSlots.filter(Boolean).length === 0) { flash('Define the function first'); return; }
+                        callSlots[i] = 'call';
+                    }
+                    renderCalls();
+                });
+                s.textContent = callSlots[i] ? 'F' : '';
+                callSlotsEl.appendChild(s);
+            }
+            callCountEl.textContent = callSlots.filter(Boolean).length;
+        }
+
+        function arrowSym(a) { return a === 'up' ? '↑' : a === 'down' ? '↓' : a === 'left' ? '←' : '→'; }
+        document.querySelectorAll('.btn[data-action]').forEach(b => {
+            b.addEventListener('click', () => {
+                const action = b.dataset.action;
+                if (fnSlots.filter(Boolean).length >= maxFn) { flash('Function full (max 3)'); return; }
+                // append
+                fnSlots.push(action); while (fnSlots.length < maxFn) fnSlots.push(null);
+                renderFn();
+            });
+        });
+        document.getElementById('clearFn').addEventListener('click', () => { fnSlots = [null, null, null]; renderFn(); });
+
+        document.getElementById('runBtn').addEventListener('click', () => runProgram());
+        document.getElementById('newBtn').addEventListener('click', () => newPuzzle());
+        document.getElementById('closePopup').addEventListener('click', () => overlay.style.display = 'none');
+
+        function newPuzzle() {
+            // robot bottom row random, goal top row random
+            robotPos = 6 + Math.floor(Math.random() * 3);
+            goalPos = Math.floor(Math.random() * 3);
+            if (robotPos % 3 === goalPos % 3 && robotPos > goalPos) goalPos = (goalPos + 1) % 3;
+            fnSlots = [null, null, null];
+            callSlots = [null, null, null];
+            renderFn(); renderCalls(); createGrid(); renderGrid(robotPos);
+            resetTimer();
+        }
+
+        function moveIndex(idx, dir) {
+            const r = Math.floor(idx / 3), c = idx % 3;
+            if (dir === 'up' && r > 0) return idx - 3;
+            if (dir === 'down' && r < 2) return idx + 3;
+            if (dir === 'left' && c > 0) return idx - 1;
+            if (dir === 'right' && c < 2) return idx + 1;
+            return idx;
+        }
+
+        function runProgram() {
+            if (fnSlots.filter(Boolean).length === 0) { flash('Define the function first'); return; }
+            const program = [];
+            for (let call of callSlots) {
+                if (call === 'call') {
+                    for (let a of fnSlots) {
+                        if (a) program.push(a);
+                    }
+                }
+            }
+            if (program.length === 0) { flash('Place at least one function call'); return; }
+            executeProgram(program);
+        }
+
+        function executeProgram(program) {
+            stopTimer();
+            let pos = robotPos;
+            let i = 0;
+            const delay = 420;
+            function step() {
+                if (i >= program.length) {
+                    onFinish(pos);
+                    return;
+                }
+                const dir = program[i];
+                const newPos = moveIndex(pos, dir);
+                // brief highlight of movement
+                gridEl.children[newPos].style.boxShadow = '0 6px 18px rgba(74,144,226,0.45)';
+                setTimeout(() => gridEl.children[newPos].style.boxShadow = '', delay - 80);
+                pos = newPos;
+                renderGrid(pos);
+                if (pos === goalPos) { onFinish(pos, true); return; }
+                i++;
+                setTimeout(step, delay);
+            }
+            step();
+        }
+
+        function onFinish(pos, success = false) {
+            if (success) {
+                showPopup(true);
+                try { if (window.onSuccess) window.onSuccess({ timeLeft }); } catch (e) { }
+            } else showPopup(false);
+            resetTimer();
+        }
+
+        function showPopup(ok) {
+            overlay.style.display = 'flex';
+            if (ok) popupContent.innerHTML = '<div style="font-size:24px">🎉 You did it!</div><div style="margin-top:8px">Blessing unlocked — show this to the robot tablet.</div>';
+            else popupContent.innerHTML = '<div style="font-size:20px">Try again</div><div style="margin-top:8px">Use calls and a short function to reach the ⭐</div>';
+        }
+
+        function resetTimer() {
+            if (timerId) clearInterval(timerId);
+            timeLeft = 60; timerEl.textContent = timeLeft;
+            timerId = setInterval(() => {
+                timeLeft--; timerEl.textContent = timeLeft;
+                if (timeLeft <= 0) { clearInterval(timerId); timerId = null; showPopup(false); }
+            }, 1000);
+        }
+        function stopTimer() { if (timerId) clearInterval(timerId); timerId = null; }
+
+        function flash(msg) {
+            // small toast-like prompt
+            const old = document.getElementById('toast');
+            if (old) old.remove();
+            const t = document.createElement('div'); t.id = 'toast';
+            t.style.position = 'fixed'; t.style.bottom = '18px'; t.style.left = '50%'; t.style.transform = 'translateX(-50%)';
+            t.style.background = '#0b1220'; t.style.color = '#fff'; t.style.padding = '10px 14px'; t.style.borderRadius = '10px'; t.style.zIndex = 999;
+            t.textContent = msg; document.body.appendChild(t);
+            setTimeout(() => t.remove(), 1600);
+        }
+
+        // default onSuccess plays a sound (can be overridden)
+        window.onSuccess = function (data) {
+            try { const s = new Audio('https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg'); s.play(); } catch (e) { }
+        };
+
+        newPuzzle();
+    </script>
+</body>
+
+</html>
