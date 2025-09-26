@@ -5,62 +5,92 @@
       "x": 0.4248496993987976,
       "y": 0.8211623246492986,
       "label": "Lion (Durga's Sawari)",
-      "story_en": "Maa Durga rides the lion. It symbolizes courage and power.",
-      "story_hi": "माँ दुर्गा सिंह पर सवार होती हैं; यह साहस और शक्ति का प्रतीक है।",
-      "story_bn": "মা দুর্গা সিংহে আরোহণ করেন; এটি সাহস ও শক্তির প্রতীক।",
-      "icon": "assets/lion.png"
+      "story_en": "Maa Durga rides the mighty lion. It shows her courage and power to protect us.",
+      "story_hi": "माँ दुर्गा सिंह पर सवार होती हैं। यह उनके साहस और शक्ति को दिखाता है, जिससे वे हमारी रक्षा करती हैं।",
+      "story_bn": "মা দুর্গা সিংহে আরোহণ করেন। এটি তার সাহস ও শক্তি প্রকাশ করে, যা দিয়ে তিনি আমাদের রক্ষা করেন।",
+      "icon": "assets/lion.png",
+      "audio": {
+        "en": "assets/audio/lion_en.wav",
+        "hi": "assets/audio/lion_hi.wav",
+        "bn": "assets/audio/lion_bn.wav"
+      }
     },
     {
       "id": "mouse",
       "x": 0.03507014028056112,
       "y": 0.9391583166332665,
       "label": "Mouse (Ganesha's Sawari)",
-      "story_en": "Ganesha's vehicle is the mouse — clever and quick.",
-      "story_hi": "गणेश का वाहन मूषक है — चालाक और तेज।",
-      "story_bn": "গণেশের বাহন ইঁদুর — চালাক ও দ্রুত।",
-      "icon": "assets/mouse.png"
+      "story_en": "Ganesha’s vehicle is a little mouse. Small but very clever and quick!",
+      "story_hi": "गणेश का वाहन एक छोटा चतुर मूषक है। छोटा होकर भी बहुत चालाक और तेज है!",
+      "story_bn": "গণেশের বাহন একটি ছোট ইঁদুর। ছোট হলেও খুব চালাক এবং দ্রুত।",
+      "icon": "assets/mouse.png",
+      "audio": {
+        "en": "assets/audio/mouse_en.wav",
+        "hi": "assets/audio/mouse_hi.wav",
+        "bn": "assets/audio/mouse_bn.wav"
+      }
     },
     {
       "id": "peacock",
       "x": 0.9408817635270541,
       "y": 0.9374482297929192,
       "label": "Peacock (Kartikeya's Sawari)",
-      "story_en": "Kartikeya often rides a peacock, symbolizing beauty and pride.",
-      "story_hi": "कार्तिकेय मोर पर सवार रहते हैं; यह सुंदरता और गर्व का प्रतीक है।",
-      "story_bn": "কার্তিকেয় প্রায়ই ময়ূরে চড়েন; এটি সৌন্দর্য ও গৌরবের প্রতীক।",
-      "icon": "assets/peacock.png"
+      "story_en": "Kartikeya rides a colorful peacock. It shines with beauty and pride.",
+      "story_hi": "कार्तिकेय एक रंग-बिरंगे मोर पर सवार रहते हैं। यह सुंदरता और गर्व से चमकता है।",
+      "story_bn": "কার্তিকেয় রঙিন ময়ূরে চড়েন। এটি সৌন্দর্য ও গৌরবে ঝলমল করে।",
+      "icon": "assets/peacock.png",
+      "audio": {
+        "en": "assets/audio/peacock_en.wav",
+        "hi": "assets/audio/peacock_hi.wav",
+        "bn": "assets/audio/peacock_bn.wav"
+      }
     },
     {
       "id": "owl",
       "x": 0.15130260521042085,
       "y": 0.9066666666666666,
       "label": "Owl (Lakshmi's Sawari)",
-      "story_en": "The owl is associated with Lakshmi and symbolizes wisdom and alertness.",
-      "story_hi": "उल्लूक (उल्लू) को लक्ष्मी से जोड़ा जाता है; यह बुद्धि और सतर्कता का प्रतीक है।",
-      "story_bn": "উলু লাক্ষ্মীর সাথে যুক্ত এবং জ্ঞান ও সতর্কতার প্রতীক।",
-      "icon": "assets/owl.png"
+      "story_en": "The wise owl is with Goddess Lakshmi. It reminds us to stay alert and thoughtful.",
+      "story_hi": "बुद्धिमान उल्लू देवी लक्ष्मी के साथ है। यह हमें सतर्क और विचारशील रहने की याद दिलाता है।",
+      "story_bn": "জ্ঞানী উলু দেবী লক্ষ্মীর সাথে। এটি আমাদের সতর্ক ও চিন্তাশীল থাকতে শেখায়।",
+      "icon": "assets/owl.png",
+      "audio": {
+        "en": "assets/audio/owl_en.wav",
+        "hi": "assets/audio/owl_hi.wav",
+        "bn": "assets/audio/owl_bn.wav"
+      }
     },
     {
       "id": "swan",
       "x": 0.8577154308617234,
       "y": 0.9459986639946559,
       "label": "Swan (Saraswati's Sawari)",
-      "story_en": "The swan (hamsa) is Saraswati's vehicle and represents purity and discrimination of knowledge.",
-      "story_hi": "हंस सरस्वती का वाहन है; यह पवित्रता और ज्ञान की विवेकशीलता का प्रतीक है।",
-      "story_bn": "হংস সরস্বতীর বাহন; এটি বিশুদ্ধতা ও জ্ঞান-বিভেদের প্রতীক।",
-      "icon": "assets/swan.png"
+      "story_en": "The swan is Saraswati’s vehicle. It stands for purity and the joy of learning.",
+      "story_hi": "हंस सरस्वती का वाहन है। यह पवित्रता और सीखने की खुशी का प्रतीक है।",
+      "story_bn": "হংস সরস্বতীর বাহন। এটি বিশুদ্ধতা এবং শেখার আনন্দের প্রতীক।",
+      "icon": "assets/swan.png",
+      "audio": {
+        "en": "assets/audio/swan_en.wav",
+        "hi": "assets/audio/swan_hi.wav",
+        "bn": "assets/audio/swan_bn.wav"
+      }
     },
     {
       "id": "buffalo",
       "x": 0.4248496993987976,
       "y": 0.9340280561122245,
       "label": "Buffalo (Mahishasura association)",
-      "story_en": "The buffalo is associated with the demon Mahishasura, whom Maa Durga defeated in the legend.",
-      "story_hi": "भैंसा (महिष) का संबंध महिषासुर से है, जिसे मां दुर्गा ने पराजित किया।",
-      "story_bn": "ভৈরভ (মহিষাসুর) সাথে সম্পর্কিত; মা দুর্গা তাকে পরাজিত করেছিলেন।",
+      "story_en": "The buffalo is linked to Mahishasura, the demon Maa Durga bravely defeated.",
+      "story_hi": "भैंसा महिषासुर से जुड़ा है, जिसे माँ दुर्गा ने बहादुरी से हराया था।",
+      "story_bn": "ভৈরব (মহিষ) মহিষাসুরের সাথে সম্পর্কিত, যাকে মা দুর্গা সাহসের সাথে পরাজিত করেছিলেন।",
       "story_bn_alt": "ভৈর (ভৈরব) বর্ণনা পরিবর্তন করতে পারেন",
       "story_en_short": "Associated with the demon Mahishasura.",
-      "icon": "assets/buffalo.png"
+      "icon": "assets/buffalo.png",
+      "audio": {
+        "en": "assets/audio/buffalo_en.wav",
+        "hi": "assets/audio/buffalo_hi.wav",
+        "bn": "assets/audio/buffalo_bn.wav"
+      }
     }
   ],
   "weapons": [
@@ -69,40 +99,60 @@
       "x": 0.405811623246493,
       "y": 0.3252371409485638,
       "label": "Trishul (Trident)",
-      "story_en": "The Trishul destroys evil and ignorance.",
-      "story_hi": "त्रिशूल बुराई और अज्ञानता को नष्ट करता है।",
-      "story_bn": "ত্রিশূল অপদমনের ও অজ্ঞতার বিনাশ ঘটায়।",
-      "icon": "assets/trishul.png"
+      "story_en": "The Trishul is a powerful trident. It helps Maa Durga destroy evil and spread light.",
+      "story_hi": "त्रिशूल एक शक्तिशाली त्रिशूल है। यह माँ दुर्गा को बुराई हराने और उजाला फैलाने में मदद करता है।",
+      "story_bn": "ত্রিশূল একটি শক্তিশালী ত্রিশূল। এটি মা দুর্গাকে অপশক্তি নিবারণের মধ্যে সাহায্য করে।",
+      "icon": "assets/trishul.png",
+      "audio": {
+        "en": "assets/audio/trishul_en.wav",
+        "hi": "assets/audio/trishul_hi.wav",
+        "bn": "assets/audio/trishul_bn.wav"
+      }
     },
     {
       "id": "sword",
       "x": 0.3847695390781563,
       "y": 0.421002004008016,
       "label": "Sword",
-      "story_en": "The sword represents knowledge which cuts through falsehood.",
-      "story_hi": "तलवार ज्ञान का प्रतिनिधित्व करती है जो असत्य को काट देती है।",
-      "story_bn": "তলোয়ার মিথ্যার বিরুদ্ধে সত্যের প্রতীক।",
-      "icon": "assets/sword.png"
+      "story_en": "The sword is sharp like truth. It cuts away lies and helps truth shine through.",
+      "story_hi": "तलवार सत्य की तरह तेज है। यह झूठ को काटकर सत्य को उजागर करती है।",
+      "story_bn": "তলোয়ার সত্যের মতো ধারালো। এটি মিথ্যাকে কেটে সত্যকে প্রকাশ করে।",
+      "icon": "assets/sword.png",
+      "audio": {
+        "en": "assets/audio/sword_en.wav",
+        "hi": "assets/audio/sword_hi.wav",
+        "bn": "assets/audio/sword_bn.wav"
+      }
     },
     {
       "id": "lotus",
       "x": 0.5961923847695391,
       "y": 0.279064796259185,
       "label": "Lotus",
-      "story_en": "The lotus stands for purity and spiritual consciousness.",
-      "story_hi": "कमल पवित्रता और आध्यात्मिक चेतना का प्रतीक है।",
-      "story_bn": "পদ্ম পবিত্রতা ও আধ্যাত্মিক চেতনার প্রতীক।",
-      "icon": "assets/lotus.png"
+      "story_en": "The lotus grows pure and beautiful. It reminds us about spiritual growth and goodness.",
+      "story_hi": "कमल पवित्र और सुंदर उगता है। यह आध्यात्मिक वृद्धि और अच्छेपन की याद दिलाता है।",
+      "story_bn": "পদ্ম পবিত্র ও সুন্দরভাবে বৃদ্ধি পায়। এটি আমাদের আধ্যাত্মিক বিকাশ ও শুভতার কথা মনে করায়।",
+      "icon": "assets/lotus.png",
+      "audio": {
+        "en": "assets/audio/lotus_en.wav",
+        "hi": "assets/audio/lotus_hi.wav",
+        "bn": "assets/audio/lotus_bn.wav"
+      }
     },
     {
       "id": "kartikeya_vel",
       "x": 0.8627254509018036,
       "y": 0.581750167000668,
       "label": "Vel (Kartikeya's Spear)",
-      "story_en": "The Vel is Kartikeya's spear — a symbol of valor and victory.",
-      "story_hi": "वेल कार्तिकेय की भाला है — यह वीरता और विजय का प्रतीक है।",
-      "story_bn": "ভেল কার্তিকেয়ার কর্শ (কোঁচ) — সাহস ও জয়ের প্রতীক।",
-      "icon": "assets/vel.png"
+      "story_en": "The Vel is Kartikeya’s bright spear. It stands for bravery and winning with honor.",
+      "story_hi": "वेल कार्तिकेय का भाला है। यह वीरता और सम्मान के साथ जीत का प्रतीक है।",
+      "story_bn": "ভেল কার্তিকেয়ার উজ্জ্বল কোঁচ। এটি সাহস ও মানসম্মত জয়ের প্রতীক।",
+      "icon": "assets/vel.png",
+      "audio": {
+        "en": "assets/audio/kartikeya_vel_en.wav",
+        "hi": "assets/audio/kartikeya_vel_hi.wav",
+        "bn": "assets/audio/kartikeya_vel_bn.wav"
+      }
     }
   ],
   "gods": [
@@ -111,50 +161,75 @@
       "x": 0.08617234468937876,
       "y": 0.884435537742151,
       "label": "Ganesha",
-      "story_en": "Ganesha is the remover of obstacles and lord of beginnings.",
-      "story_hi": "गणेश बाधाओं को दूर करने वाले और आरम्भ के देवता हैं।",
-      "story_bn": "গণেশ বাঁধা দূরকারী ও সূচনীর দেবতা।",
-      "icon": "assets/ganesha.png"
+      "story_en": "Ganesha removes obstacles and brings cheerful new beginnings for everyone.",
+      "story_hi": "गणेश बाधाएं दूर करते हैं और सभी के लिए खुशहाल नई शुरुआत लाते हैं।",
+      "story_bn": "গণেশ বাঁধা দূর করেন এবং সবার জন্য সুখময় নতুন সূচনা নিয়ে আসেন।",
+      "icon": "assets/ganesha.png",
+      "audio": {
+        "en": "assets/audio/ganesha_en.wav",
+        "hi": "assets/audio/ganesha_hi.wav",
+        "bn": "assets/audio/ganesha_bn.wav"
+      }
     },
     {
       "id": "lakshmi",
       "x": 0.2665330661322645,
       "y": 0.7732798931195725,
       "label": "Lakshmi",
-      "story_en": "Lakshmi is goddess of wealth and prosperity.",
-      "story_hi": "लक्ष्मी धन और समृद्धि की देवी हैं।",
-      "story_bn": "লক্ষ্মী ধন ও সমৃদ্ধির দেবী।",
-      "icon": "assets/lakshmi.png"
+      "story_en": "Lakshmi is the goddess of wealth and kindness. She brings good fortune and smiles.",
+      "story_hi": "लक्ष्मी धन और दया की देवी हैं। वे शुभता और मुस्कान लाती हैं।",
+      "story_bn": "লক্ষ্মী ধন ও করুণা-প্রদানকারী দেবী। তিনি সৌভাগ্য এবং হাসি আনেন।",
+      "icon": "assets/lakshmi.png",
+      "audio": {
+        "en": "assets/audio/lakshmi_en.wav",
+        "hi": "assets/audio/lakshmi_hi.wav",
+        "bn": "assets/audio/lakshmi_bn.wav"
+      }
     },
     {
       "id": "durga",
       "x": 0.4468937875751503,
       "y": 0.7065865063460254,
       "label": "Durga",
-      "story_en": "Maa Durga is a powerful mother goddess who defeats evil.",
-      "story_hi": "माँ दुर्गा एक शक्तिशाली मातृदेवी हैं जो बुराईयों पर विजय पाती हैं।",
-      "story_bn": "মা দুর্গা একজন শক্তিশালী মায়ারূপী দেবী যিনি পাপ দূর করেন।",
-      "icon": "assets/lion.png"
+      "story_en": "Maa Durga is a strong mother who defeats evil and protects the world with love.",
+      "story_hi": "माँ दुर्गा एक शक्तिशाली माँ हैं जो बुराई को हराकर प्रेम से दुनिया की रक्षा करती हैं।",
+      "story_bn": "মা দুর্গা একজন শক্তিশালী মা, তিনি প্রেম দিয়ে পাপ পরাস্ত করে পৃথিবীকে রক্ষা করেন।",
+      "icon": "assets/lion.png",
+      "audio": {
+        "en": "assets/audio/durga_en.wav",
+        "hi": "assets/audio/durga_hi.wav",
+        "bn": "assets/audio/durga_bn.wav"
+      }
     },
     {
       "id": "saraswati",
       "x": 0.7585170340681363,
       "y": 0.790380761523046,
       "label": "Saraswati",
-      "story_en": "Saraswati is goddess of knowledge, music, and arts.",
-      "story_hi": "सरस्वती ज्ञान, संगीत और कला की देवी हैं।",
-      "story_bn": "সরস্বতী জ্ঞান, সংগীত ও কলার দেবী।",
-      "icon": "assets/saraswati.png"
+      "story_en": "Saraswati is the goddess of knowledge, music, and arts. She helps us love learning.",
+      "story_hi": "सरस्वती ज्ञान, संगीत और कला की देवी हैं। वह हमें सीखने से प्रेम करवाती हैं।",
+      "story_bn": "সরস্বতী জ্ঞান, সঙ্গীত ও কলার দেবী। তিনি আমাদের শেখার প্রতি অনুরাগ বাড়ান।",
+      "icon": "assets/saraswati.png",
+      "audio": {
+        "en": "assets/audio/saraswati_en.wav",
+        "hi": "assets/audio/saraswati_hi.wav",
+        "bn": "assets/audio/saraswati_bn.wav"
+      }
     },
     {
       "id": "kartikeya",
       "x": 0.9759519038076152,
       "y": 0.8673346693386773,
       "label": "Kartikeya",
-      "story_en": "Kartikeya is a warrior god and commander of the gods.",
-      "story_hi": "कार्तिकेय एक योद्धा देवता और देवताओं के सेनापति हैं।",
-      "story_bn": "কার্তিকেয় এক যোদ্ধা দেবতা ও দেবতাদের অধিনায়ক।",
-      "icon": "assets/kartikeya.png"
+      "story_en": "Kartikeya is a brave warrior god and the commander of the gods.",
+      "story_hi": "कार्तिकेय एक बहादुर योद्धा देवता और देवताओं के सेनापति हैं।",
+      "story_bn": "কার্তিকেয় এক সাহসী যোদ্ধা দেবতা ও দেবতাদের অধিনায়ক।",
+      "icon": "assets/kartikeya.png",
+      "audio": {
+        "en": "assets/audio/kartikeya_en.wav",
+        "hi": "assets/audio/kartikeya_hi.wav",
+        "bn": "assets/audio/kartikeya_bn.wav"
+      }
     }
   ]
 }
