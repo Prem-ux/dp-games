@@ -136,6 +136,17 @@
       height: 26px
     }
 
+    @keyframes dissolve {
+      0% {
+        opacity: 1
+      }
+
+      100% {
+        opacity: 0
+      }
+
+    }
+
     @keyframes pulse {
       0% {
         transform: scale(1);
@@ -154,7 +165,7 @@
     }
 
     .hotspot.touched .hsdot {
-      animation: none;
+      animation: dissolve 8.6s forwards;
       opacity: 0.9
     }
 
@@ -325,7 +336,7 @@
       max-width: 420px;
       border-radius: 8px;
       width: 100%;
-      height: auto
+      height: 30%;
     }
 
     .closeBtn {
@@ -338,7 +349,8 @@
       padding: 6px 10px;
       border-radius: 50%;
       cursor: pointer;
-      font-weight: 800
+      font-weight: 800;
+      z-index: 2000;
     }
 
     /* desktop-only area (hidden on small screen) */
@@ -374,10 +386,12 @@
   </style>
 </head>
 
+
+
 <body>
-  <div id="orientationOverlay"
-    style="position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:#000;color:#fff;font-size:20px;font-weight:700;z-index:2000;text-align:center">
-    Please rotate your device to <br><span style="color:#ffd54a">Landscape Mode</span>
+  <div id="orientationOverlay" style="position:fixed;inset:0;display:none;z-index:1000;">
+    <img src="assets/rotate.gif" alt="Rotate device" style="width:100%;height:auto;margin-bottom:20px" />
+
   </div>
 
   <div class="wrap">
@@ -607,13 +621,24 @@
       // small floating popup near hotspot
       const popup = document.createElement('div');
       popup.style.position = 'absolute';
-      popup.style.left = (h.x * 100) + '%';
+      console.log(h.x * 100);
+      if (h.x * 100 < 50) {
+        popup.style.left = (h.x * 100 + 10) + '%';
+      }
+      else {
+        popup.style.left = (h.x * 100 - 10) + '%';
+      }
+      // popup.style.left = (h.x * 100) + '%';
+      popup.style.transform = 'translateX(-50%)';
       popup.style.top = (Math.max(0, h.y * 100 - 6)) + '%';
       popup.style.transform = 'translate(-50%,-100%)';
       popup.style.background = '#fff';
       popup.style.color = '#071122';
       popup.style.padding = '10px';
+      // popup.style.marginLeft = '150px';
       popup.style.borderRadius = '8px';
+      popup.style.maxWidth = '220px';
+      popup.style.minHeight = '80px';
       popup.style.boxShadow = '0 8px 24px rgba(2,6,23,0.12)';
       popup.style.zIndex = '60';
       popup.innerHTML = `<strong>${escapeHtml(t.label)}</strong><div style="font-size:13px;margin-top:6px">${escapeHtml(t.story)}</div>`;
@@ -658,7 +683,7 @@
       updateProgress();
       if (found[mode].size >= (HOTSPOTS[mode] || []).length) {
         celebrate();
-        setTimeout(() => openQuizForMode(mode), 600);
+        setTimeout(() => openQuizForMode(mode), 2500);
       }
     }
 
