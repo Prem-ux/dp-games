@@ -1,0 +1,29 @@
+{
+  "en": {
+    "title": "Idol Explorer - Discover Maa Durga",
+    "findVehicles": "Find the vehicles (sawari) of the deities.",
+    "findWeapons": "Tap each weapon to learn.",
+    "findGods": "Find the gods by name.",
+    "collectionTitle": "My Collection",
+    "downloadCert": "Download Certificate",
+    "playBlessing": "Play Blessing"
+  },
+  "hi": {
+    "title": "मूर्ति अन्वेषक - मां दुर्गा खोजें",
+    "findVehicles": "देवताओं के वाहन खोजें।",
+    "findWeapons": "प्रत्येक हथियार पर टैप करें और जानें।",
+    "findGods": "देवताओं के नाम बताइए।",
+    "collectionTitle": "मेरी संग्रह",
+    "downloadCert": "प्रमाणपत्र डाउनलोड करें",
+    "playBlessing": "आशीर्वाद सुनाएँ"
+  },
+  "bn": {
+    "title": "মূর্তি এক্সপ্লোরার - মা দুর্গা জানুন",
+    "findVehicles": "দেবতাদের বাহনগুলিকে খুঁজুন।",
+    "findWeapons": "প্রতিটি অস্ত্রে ট্যাপ করে জানুন।",
+    "findGods": "দেবতাদের নাম খুঁজে বের করুন।",
+    "collectionTitle": "আমার সংগ্রহ",
+    "downloadCert": "সার্টিফিকেট ডাউনলোড করুন",
+    "playBlessing": "আশীর্বাদ শুনুন"
+  }
+}

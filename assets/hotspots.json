@@ -1,0 +1,96 @@
+{
+  "sawari": [
+    {
+      "id": "lion",
+      "x": 0.51,
+      "y": 0.61,
+      "label": "Lion (Durga's Sawari)",
+      "story": "Maa Durga rides the lion. It symbolizes courage and power.",
+      "icon": "assets/lion.png"
+    },
+    {
+      "id": "mouse",
+      "x": 0.12,
+      "y": 0.78,
+      "label": "Mouse (Ganesha's Sawari)",
+      "story": "Ganesha's vehicle is the mouse — clever and quick.",
+      "icon": "assets/mouse.png"
+    },
+    {
+      "id": "peacock",
+      "x": 0.9,
+      "y": 0.78,
+      "label": "Peacock (Kartikeya's Sawari)",
+      "story": "Kartikeya often rides a peacock, symbolizing beauty and pride.",
+      "icon": "assets/peacock.png"
+    }
+  ],
+  "weapons": [
+    {
+      "id": "trishul",
+      "x": 0.52,
+      "y": 0.28,
+      "label": "Trishul (Trident)",
+      "story": "The Trishul destroys evil and ignorance.",
+      "icon": "assets/trishul.png"
+    },
+    {
+      "id": "sword",
+      "x": 0.42,
+      "y": 0.3,
+      "label": "Sword",
+      "story": "The sword represents knowledge which cuts through falsehood.",
+      "icon": "assets/sword.png"
+    },
+    {
+      "id": "lotus",
+      "x": 0.6,
+      "y": 0.3,
+      "label": "Lotus",
+      "story": "The lotus stands for purity and spiritual consciousness.",
+      "icon": "assets/lotus.png"
+    }
+  ],
+  "gods": [
+    {
+      "id": "ganesha",
+      "x": 0.08,
+      "y": 0.48,
+      "label": "Ganesha",
+      "story": "Ganesha is the remover of obstacles and lord of beginnings.",
+      "icon": "assets/ganesha.png"
+    },
+    {
+      "id": "lakshmi",
+      "x": 0.28,
+      "y": 0.46,
+      "label": "Lakshmi",
+      "story": "Lakshmi is goddess of wealth and prosperity.",
+      "icon": "assets/lakshmi.png"
+    },
+    {
+      "id": "durga",
+      "x": 0.5,
+      "y": 0.18,
+      "label": "Durga",
+      "story": "Maa Durga is a powerful mother goddess who defeats evil.",
+      "icon": "assets/lion.png"
+    },
+    {
+      "id": "saraswati",
+      "x": 0.72,
+      "y": 0.46,
+      "label": "Saraswati",
+      "story": "Saraswati is goddess of knowledge, music, and arts.",
+      "icon": "assets/saraswati.png"
+    },
+    {
+      "id": "kartikeya",
+      "x": 0.92,
+      "y": 0.46,
+      "label": "Kartikeya",
+      "story": "Kartikeya is a warrior god and commander of the gods.",
+      "icon": "assets/kartikeya.png"
+    }
+  ]
+}
