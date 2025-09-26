@@ -231,5 +231,24 @@
         "bn": "assets/audio/kartikeya_bn.wav"
       }
     }
+  ],
+  "demons": [
+    {
+      "id": "mahishasura",
+      "x": 0.623,
+      "y": 0.799,
+      "label": "Mahishasura (The Buffalo Demon)",
+      "story_en": "Mahishasura was a powerful demon who caused trouble until Maa Durga bravely defeated him.",
+      "story_hi": "महिषासुर एक शक्तिशाली असुर था जो परेशानियां करता था, जिसे माँ दुर्गा ने बहादुरी से पराजित किया।",
+      "story_bn": "মহিষাসুর একজন শক্তিশালী অশুভ দৈত্য ছিলেন, যাকে মা দুর্গা সাহসের সঙ্গে পরাজিত করেছিলেন।",
+      "icon": "assets/mahishasura.png",
+      "audio": {
+        "en": "assets/audio/mahishasura_en.wav",
+        "hi": "assets/audio/mahishasura_hi.wav",
+        "bn": "assets/audio/mahishasura_bn.wav"
+      },
+      "type": "demon",
+      "notes": "Not a god — included for story context"
+    }
   ]
 }

@@ -117,6 +117,13 @@
       border: 1px solid #f1e0d0
     }
 
+    .badge.demon {
+      border-color: rgba(255, 80, 80, 0.12);
+      background: linear-gradient(90deg, #fff7f7, #fff1f1);
+      color: #7a0b0b;
+    }
+
+
     .footer {
       margin-top: 14px;
       color: var(--muted);
@@ -247,6 +254,7 @@
         <button class="btn" id="modeSawari">Discover Vahaans</button>
         <button class="btn" id="modeWeapons">Discover Weapons</button>
         <button class="btn" id="modeGods">Name the Gods</button>
+        <button class="btn" id="modeDemons">Meet Demons</button>
         <input id="childName" placeholder="Child name (optional)"
           style="padding:8px;border-radius:8px;border:1px solid #eee" />
         <button class="btn" id="downloadCert">Download Certificate</button>
@@ -391,13 +399,27 @@
     }
 
     function markFound(h) { if (found[mode].has(h.id)) return; found[mode].add(h.id); addBadge(h); updateProgress(); if (found[mode].size >= (HOTSPOTS[mode] || []).length) { celebrate(); setTimeout(() => openQuizForMode(mode), 550); } }
-    function addBadge(h) { const key = mode + '-' + h.id; if (document.getElementById(key)) return; const b = document.createElement('div'); b.className = 'badge'; b.id = key; const t = getTextFor(h); b.innerHTML = '<img src="' + h.icon + '" style="width:28px;height:28px;border-radius:6px;margin-right:8px"/>' + t.label; $('collectionArea').appendChild(b); }
+    function addBadge(h) {
+      const key = mode + '-' + h.id;
+      if (document.getElementById(key)) return;
+      const b = document.createElement('div');
+      b.className = 'badge' + (h.type === 'demon' ? ' demon' : '');
+      b.id = key;
+      const t = getTextFor(h);
+      // if demon, add a small warning dot
+      let extra = '';
+      if (h.type === 'demon') {
+        extra = '<span title="Demon" style="margin-right:6px;font-weight:900;color:#c62828">⚠</span>';
+      }
+      b.innerHTML = extra + '<img src="' + h.icon + '" style="width:28px;height:28px;border-radius:6px;margin-right:8px"/>' + t.label;
+      $('collectionArea').appendChild(b);
+    }
     function updateProgress() { const got = found[mode].size; const total = (HOTSPOTS[mode] || []).length; const pct = total ? (got / total * 100) : 0; $('progressFill').style.width = pct + '%'; $('progressCount').textContent = got + ' / ' + total; $('currentMode').textContent = mode.charAt(0).toUpperCase() + mode.slice(1); }
 
     function celebrate() { const wrap = $('confettiWrap'); wrap.innerHTML = ''; wrap.style.display = 'block'; const colors = ['#ff5252', '#ffd54a', '#4dd0e1', '#a5d6a7', '#ce93d8']; for (let i = 0; i < 20; i++) { const p = document.createElement('div'); p.className = 'particle'; p.style.left = (Math.random() * 100) + '%'; p.style.top = '-10%'; p.style.color = colors[i % colors.length]; p.style.fontSize = (12 + Math.random() * 28) + 'px'; p.textContent = ['🎉', '✨', '🎊', '🍃', '🪔'][i % 5]; p.style.animationDuration = (2.5 + Math.random() * 1.5) + 's'; wrap.appendChild(p); } setTimeout(() => { wrap.innerHTML = ''; wrap.style.display = 'none'; }, 3600); }
 
     // quiz
-    function openQuizForMode(m) { let q; if (m === 'sawari') q = { q: 'Who rides the peacock?', a: 'Kartikeya', b: 'Lakshmi', ans: 'Kartikeya' }; else if (m === 'weapons') q = { q: 'What does the Trishul destroy?', a: 'Evil', b: 'Flowers', ans: 'Evil' }; else q = { q: 'Who is the goddess of knowledge?', a: 'Saraswati', b: 'Lakshmi', ans: 'Saraswati' }; $('quizQ').textContent = q.q; $('optA').textContent = q.a; $('optB').textContent = q.b; $('optA').onclick = () => checkQuiz(q.a, q.ans); $('optB').onclick = () => checkQuiz(q.b, q.ans); $('quizPopup').style.display = 'block'; }
+    function openQuizForMode(m) { let q; if (m === 'demons') q = { q: 'Who defeated Mahishasura?', a: 'Maa Durga', b: 'Ganesha', ans: 'Maa Durga' }; else if (m === 'sawari') q = { q: 'Who rides the peacock?', a: 'Kartikeya', b: 'Lakshmi', ans: 'Kartikeya' }; else if (m === 'weapons') q = { q: 'What does the Trishul destroy?', a: 'Evil', b: 'Flowers', ans: 'Evil' }; else q = { q: 'Who is the goddess of knowledge?', a: 'Saraswati', b: 'Lakshmi', ans: 'Saraswati' }; $('quizQ').textContent = q.q; $('optA').textContent = q.a; $('optB').textContent = q.b; $('optA').onclick = () => checkQuiz(q.a, q.ans); $('optB').onclick = () => checkQuiz(q.b, q.ans); $('quizPopup').style.display = 'block'; }
     function checkQuiz(choice, ans) { if (choice === ans) showToast('Correct! Bonus unlocked.'); else showToast('Not quite — try another mode!'); closeQuiz(); }
     function closeQuiz() { $('quizPopup').style.display = 'none'; }
 
@@ -609,6 +631,7 @@
       document.getElementById('modeSawari').addEventListener('click', () => { mode = 'sawari'; renderHotspots(); });
       document.getElementById('modeWeapons').addEventListener('click', () => { mode = 'weapons'; renderHotspots(); });
       document.getElementById('modeGods').addEventListener('click', () => { mode = 'gods'; renderHotspots(); });
+      document.getElementById('modeDemons').addEventListener('click', () => { mode = 'demons'; renderHotspots(); });
       document.getElementById('downloadCert').addEventListener('click', downloadCertificate);
       renderHotspots(); updateProgress(); updateVoiceIndicator();
     }
