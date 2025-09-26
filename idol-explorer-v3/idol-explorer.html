@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Idol Explorer (Updated)</title>
+    <style>
+        body {
+            font-family: Arial;
+            margin: 0;
+            padding: 12px;
+            background: #f3f4f6
+        }
+
+        .wrap {
+            max-width: 980px;
+            margin: auto
+        }
+
+        .imgWrap {
+            position: relative
+        }
+
+        #idol {
+            width: 100%;
+            height: auto
+        }
+
+        .hotspot {
+            position: absolute;
+            transform: translate(-50%, -50%);
+            width: 56px;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: center
+        }
+
+        .hsdot {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: #ffd54a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #fff;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12)
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrap">
+        <h2>Idol Explorer — Updated (owl, swan, buffalo, Kartikeya weapons added)</h2>
+        <div class="imgWrap" id="imgWrap">
+            <img id="idol" src="assets/durga.jpg" alt="durga">
+        </div>
+        <p>Tap hotspots to learn. Use the debug page to fine-tune positions.</p>
+    </div>
+    <script>
+        const HOTSPOTS = {
+            "sawari": [
+                {
+                    "id": "lion",
+                    "x": 0.4624248496993988,
+                    "y": 0.7042423534450869,
+                    "label": "Lion (Durga's Sawari)",
+                    "story_en": "Maa Durga rides the lion. It symbolizes courage and power.",
+                    "story_hi": "माँ दुर्गा सिंह पर सवार होती हैं; यह साहस और शक्ति का प्रतीक है।",
+                    "story_bn": "মা দুর্গা সিংহে আরোহণ করেন; এটি সাহস ও শক্তির প্রতীক।",
+                    "icon": "assets/lion.png"
+                },
+                {
+                    "id": "mouse",
+                    "x": 0.06663326653306613,
+                    "y": 0.7976948386971165,
+                    "label": "Mouse (Ganesha's Sawari)",
+                    "story_en": "Ganesha's vehicle is the mouse — clever and quick.",
+                    "story_hi": "गणेश का वाहन मूषक है — चालाक और तेज।",
+                    "story_bn": "গণেশের বাহন ইঁদুর — চালাক ও দ্রুত।",
+                    "icon": "assets/mouse.png"
+                },
+                {
+                    "id": "peacock",
+                    "x": 0.8902805611222445,
+                    "y": 0.772774175963242,
+                    "label": "Peacock (Kartikeya's Sawari)",
+                    "story_en": "Kartikeya often rides a peacock, symbolizing beauty and pride.",
+                    "story_hi": "कार्तिकेय मोर पर सवार रहते हैं; यह सुंदरता और गर्व का प्रतीक है।",
+                    "story_bn": "কার্তিকেয় প্রায়ই ময়ূরে চড়েন; এটি সৌন্দর্য ও গৌরবের প্রতীক।",
+                    "icon": "assets/peacock.png"
+                },
+                {
+                    "id": "owl",
+                    "x": 0.19589178356713427,
+                    "y": 0.7628059108696922,
+                    "label": "Owl (Lakshmi's Sawari)",
+                    "story_en": "The owl is associated with Lakshmi and symbolizes wisdom and alertness.",
+                    "story_hi": "उल्लूक (उल्लू) को लक्ष्मी से जोड़ा जाता है; यह बुद्धि और सतर्कता का प्रतीक है।",
+                    "story_bn": "উলু লাক্ষ্মীর সাথে যুক্ত এবং জ্ঞান ও সতর্কতার প্রতীক।",
+                    "icon": "assets/owl.png"
+                },
+                {
+                    "id": "swan",
+                    "x": 0.8301603206412825,
+                    "y": 0.7889726067402605,
+                    "label": "Swan (Saraswati's Sawari)",
+                    "story_en": "The swan (hamsa) is Saraswati's vehicle and represents purity and discrimination of knowledge.",
+                    "story_hi": "हंस सरस्वती का वाहन है; यह पवित्रता और ज्ञान की विवेकशीलता का प्रतीक है।",
+                    "story_bn": "হংস সরস্বতীর বাহন; এটি বিশুদ্ধতা ও জ্ঞান-বিভেদের প্রতীক।",
+                    "icon": "assets/swan.png"
+                },
+                {
+                    "id": "buffalo",
+                    "x": 0.44639278557114226,
+                    "y": 0.7802503747834044,
+                    "label": "Buffalo (Mahishasura association)",
+                    "story_en": "The buffalo is associated with the demon Mahishasura, whom Maa Durga defeated in the legend.",
+                    "story_hi": "भैंसा (महिष) का संबंध महिषासुर से है, जिसे मां दुर्गा ने पराजित किया।",
+                    "story_bn": "ভৈরভ (মহিষাসুর) সাথে সম্পর্কিত; মা দুর্গা তাকে পরাজিত করেছিলেন।",
+                    "story_bn_alt": "ভৈর (ভৈরব) বর্ণনা পরিবর্তন করতে পারেন",
+                    "story_en_short": "Associated with the demon Mahishasura.",
+                    "icon": "assets/buffalo.png"
+                }
+            ],
+            "weapons": [
+                {
+                    "id": "trishul",
+                    "x": 0.4483967935871743,
+                    "y": 0.43759126219262895,
+                    "label": "Trishul (Trident)",
+                    "story_en": "The Trishul destroys evil and ignorance.",
+                    "story_hi": "त्रिशूल बुराई और अज्ञानता को नष्ट करता है।",
+                    "story_bn": "ত্রিশূল অপদমনের ও অজ্ঞতার বিনাশ ঘটায়।",
+                    "icon": "assets/trishul.png"
+                },
+                {
+                    "id": "sword",
+                    "x": 0.43236472945891785,
+                    "y": 0.34289274380390555,
+                    "label": "Sword",
+                    "story_en": "The sword represents knowledge which cuts through falsehood.",
+                    "story_hi": "तलवार ज्ञान का प्रतिनिधित्व करती है जो असत्य को काट देती है।",
+                    "story_bn": "তলোয়ার মিথ্যার বিরুদ্ধে সত্যের প্রতীক।",
+                    "icon": "assets/sword.png"
+                },
+                {
+                    "id": "lotus",
+                    "x": 0.58,
+                    "y": 0.33,
+                    "label": "Lotus",
+                    "story_en": "The lotus stands for purity and spiritual consciousness.",
+                    "story_hi": "कमल पवित्रता और आध्यात्मिक चेतना का प्रतीक है।",
+                    "story_bn": "পদ্ম পবিত্রতা ও আধ্যাত্মিক চেতনার প্রতীক।",
+                    "icon": "assets/lotus.png"
+                },
+                {
+                    "id": "kartikeya_vel",
+                    "x": 0.8391783567134269,
+                    "y": 0.5597025095886143,
+                    "label": "Vel (Kartikeya's Spear)",
+                    "story_en": "The Vel is Kartikeya's spear — a symbol of valor and victory.",
+                    "story_hi": "वेल कार्तिकेय की भाला है — यह वीरता और विजय का प्रतीक है।",
+                    "story_bn": "ভেল কার্তিকেয়ার কর্শ (কোঁচ) — সাহস ও জয়ের প্রতীক।",
+                    "icon": "assets/vel.png"
+                }
+            ],
+            "gods": [
+                {
+                    "id": "ganesha",
+                    "x": 0.12374749498997996,
+                    "y": 0.7652979771430797,
+                    "label": "Ganesha",
+                    "story_en": "Ganesha is the remover of obstacles and lord of beginnings.",
+                    "story_hi": "गणेश बाधाओं को दूर करने वाले और आरम्भ के देवता हैं।",
+                    "story_bn": "গণেশ বাঁধা দূরকারী ও সূচনীর দেবতা।",
+                    "icon": "assets/ganesha.png"
+                },
+                {
+                    "id": "lakshmi",
+                    "x": 0.2850701402805611,
+                    "y": 0.7079804528551681,
+                    "label": "Lakshmi",
+                    "story_en": "Lakshmi is goddess of wealth and prosperity.",
+                    "story_hi": "लक्ष्मी धन और समृद्धि की देवी हैं।",
+                    "story_bn": "লক্ষ্মী ধন ও সমৃদ্ধির দেবী।",
+                    "icon": "assets/lakshmi.png"
+                },
+                {
+                    "id": "durga",
+                    "x": 0.44138276553106215,
+                    "y": 0.6519089617039503,
+                    "label": "Durga",
+                    "story_en": "Maa Durga is a powerful mother goddess who defeats evil.",
+                    "story_hi": "माँ दुर्गा एक शक्तिशाली मातृदेवी हैं जो बुराईयों पर विजय पाती हैं।",
+                    "story_bn": "মা দুর্গা একজন শক্তিশালী মায়ারূপী দেবী যিনি পাপ দূর করেন।",
+                    "icon": "assets/lion.png"
+                },
+                {
+                    "id": "saraswati",
+                    "x": 0.7,
+                    "y": 0.5,
+                    "label": "Saraswati",
+                    "story_en": "Saraswati is goddess of knowledge, music, and arts.",
+                    "story_hi": "सरस्वती ज्ञान, संगीत और कला की देवी हैं।",
+                    "story_bn": "সরস্বতী জ্ঞান, সংগীত ও কলার দেবী।",
+                    "icon": "assets/saraswati.png"
+                },
+                {
+                    "id": "kartikeya",
+                    "x": 0.937374749498998,
+                    "y": 0.7578217783229173,
+                    "label": "Kartikeya",
+                    "story_en": "Kartikeya is a warrior god and commander of the gods.",
+                    "story_hi": "कार्तिकेय एक योद्धा देवता और देवताओं के सेनापति हैं।",
+                    "story_bn": "কার্তিকেয় এক যোদ্ধা দেবতা ও দেবতাদের অধিনায়ক।",
+                    "icon": "assets/kartikeya.png"
+                }
+            ]
+        }
+        function all() { return HOTSPOTS.sawari.concat(HOTSPOTS.weapons).concat(HOTSPOTS.gods); }
+        function makeHotspot(h) { const el = document.createElement('div'); el.className = 'hotspot'; el.style.left = (h.x * 100) + '%'; el.style.top = (h.y * 100) + '%'; el.innerHTML = '<div class="hsdot"><img src="' + (h.icon || 'assets/lion.png') + '" style="width:20px;height:20px"/></div>'; el.addEventListener('click', (e) => { e.stopPropagation(); var story = h.story_en || h.story || ''; alert(h.label + '\n\n' + story); }); return el; }
+        window.addEventListener('load', () => { const wrap = document.getElementById('imgWrap'); all().forEach(h => wrap.appendChild(makeHotspot(h))); });
+    </script>
+</body>
+
+</html>
