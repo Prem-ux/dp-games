@@ -1,0 +1,467 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Minu's Coding Wall — 1-minute Puzzle</title>
+    <style>
+        :root {
+            --bg: #0f1720;
+            --card: #f6f9fc;
+            --accent: #4a90e2;
+            --success: #ffd54a;
+        }
+
+        body {
+            margin: 0;
+            font-family: Inter, system-ui, Segoe UI, Roboto, Arial;
+            background: var(--bg);
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 12px
+        }
+
+        header {
+            width: 100%;
+            max-width: 760px;
+            margin-bottom: 12px
+        }
+
+        h1 {
+            margin: 4px 0;
+            font-size: 20px
+        }
+
+        p.lead {
+            margin: 0;
+            color: #cbd5e1
+        }
+
+        .boardWrap {
+            width: 100%;
+            max-width: 420px;
+            background: var(--card);
+            border-radius: 12px;
+            padding: 12px;
+            color: #0b1220
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 6px;
+            margin: 10px 0
+        }
+
+        .cell {
+            background: #fff;
+            border-radius: 8px;
+            height: 96px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 2px 6px rgba(2, 6, 23, 0.06)
+        }
+
+        .cell.robot {
+            background: linear-gradient(135deg, #eef6ff, #dbefff)
+        }
+
+        .cell.goal {
+            background: linear-gradient(135deg, #fff6db, #ffe9a8)
+        }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 8px
+        }
+
+        .palette {
+            display: flex;
+            gap: 8px;
+            justify-content: center
+        }
+
+        .btn {
+            background: var(--accent);
+            color: #fff;
+            padding: 10px 14px;
+            border-radius: 10px;
+            border: none;
+            font-weight: 600
+        }
+
+        .btn.secondary {
+            background: #ease;
+            color: #0b1220
+        }
+
+        .sequence {
+            display: flex;
+            gap: 6px;
+            justify-content: center;
+            flex-wrap: wrap;
+            padding: 6px
+        }
+
+        .slot {
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            background: #f0f3f6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #334155;
+            font-weight: 700
+        }
+
+        .actionRow {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin-top: 8px;
+            flex-wrap: wrap
+        }
+
+        .meter {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            justify-content: center;
+            margin-top: 6px
+        }
+
+        .timer {
+            font-weight: 700;
+            color: #0b1220;
+            background: #ffd8a8;
+            padding: 6px 10px;
+            border-radius: 8px
+        }
+
+        .overlay {
+            position: fixed;
+            left: 0;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 200
+        }
+
+        .popup {
+            background: var(--card);
+            color: #0b1220;
+            padding: 18px;
+            border-radius: 12px;
+            text-align: center;
+            max-width: 360px
+        }
+
+        .firework {
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #fff 0 6%, transparent 7%), radial-gradient(circle at 70% 70%, #ffd54a 0 18%, transparent 18%), linear-gradient(45deg, #ff7a7a, #ffd54a);
+            margin: 8px auto
+        }
+
+        footer {
+            margin-top: 12px;
+            color: #94a3b8;
+            font-size: 13px
+        }
+
+        @media (max-width:420px) {
+            .cell {
+                height: 72px;
+                font-size: 20px
+            }
+
+            .slot {
+                width: 40px;
+                height: 40px
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>Minu's Coding Wall — Help the Robot Reach the Star!</h1>
+        <p class="lead">Tap arrows to create a sequence (max 6). Run it. Reach the star in 60 seconds to unlock the
+            blessing!</p>
+    </header>
+
+    <div class="boardWrap" id="game">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+            <div class="meter">
+                <div style="font-size:14px;color:#334155">Time left:</div>
+                <div class="timer" id="timer">60</div>
+            </div>
+            <div style="text-align:right;color:#334155">
+                <div style="font-size:13px">Level: <strong id="level">1</strong></div>
+                <div style="font-size:12px;color:#6b7280">Max Steps: <strong id="maxSteps">6</strong></div>
+            </div>
+        </div>
+
+        <div class="grid" id="grid">
+            <!-- 9 cells -->
+        </div>
+
+        <div class="controls">
+            <div class="palette">
+                <button class="btn" data-action="up">↑</button>
+                <button class="btn" data-action="left">←</button>
+                <button class="btn" data-action="down">↓</button>
+                <button class="btn" data-action="right">→</button>
+                <button class="btn" id="clear">Clear</button>
+            </div>
+
+            <div style="margin-top:8px">
+                <div style="text-align:center;color:#475569;font-size:13px">Sequence (tap to remove)</div>
+                <div class="sequence" id="sequence"></div>
+            </div>
+
+            <div class="actionRow">
+                <button class="btn" id="runBtn">Run</button>
+                <button class="btn" id="shuffleBtn">New Puzzle</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="overlay" id="overlay">
+        <div class="popup" id="popup">
+            <div id="popupContent"></div>
+            <div style="margin-top:12px"><button class="btn" id="closePopup">Close</button></div>
+        </div>
+    </div>
+
+    <footer>Scan QR on the wall to play — make sure tablet speaker is on for blessings.</footer>
+
+    <script>
+        /* Simple grid puzzle engine
+           Grid indices: row-major [0..8], rows=3, cols=3
+           Robot start and goal positions vary per level
+        */
+        const gridEl = document.getElementById('grid');
+        const seqEl = document.getElementById('sequence');
+        const timerEl = document.getElementById('timer');
+        const popup = document.getElementById('overlay');
+        const popupContent = document.getElementById('popupContent');
+        const levelEl = document.getElementById('level');
+        const maxStepsEl = document.getElementById('maxSteps');
+
+        let level = 1;
+        let maxSteps = 6;
+        let timeLeft = 60;
+        let timerId = null;
+        let robotPos = 6;   // initial index (will be set)
+        let goalPos = 2;    // initial index (will be set)
+        let sequence = [];
+        let running = false;
+
+        function createGrid() {
+            gridEl.innerHTML = '';
+            for (let i = 0; i < 9; i++) {
+                const div = document.createElement('div');
+                div.className = 'cell';
+                div.dataset.idx = i;
+                gridEl.appendChild(div);
+            }
+        }
+
+        function renderGrid() {
+            for (let i = 0; i < 9; i++) {
+                const cell = gridEl.children[i];
+                cell.className = 'cell';
+                if (i == robotPos) { cell.classList.add('robot'); cell.innerHTML = '🤖'; }
+                else if (i == goalPos) { cell.classList.add('goal'); cell.innerHTML = '⭐'; }
+                else cell.innerHTML = '';
+            }
+        }
+
+        function newPuzzle() {
+            // simple generator: place robot randomly bottom row, goal top row but not same column
+            robotPos = 6 + Math.floor(Math.random() * 3); // 6..8
+            goalPos = Math.floor(Math.random() * 3); // 0..2
+            if (robotPos % 3 === goalPos % 3 && robotPos > goalPos) {
+                // shift goal to ensure not same cell
+                goalPos = (goalPos + 1) % 3;
+            }
+            sequence = [];
+            renderSequence();
+            renderGrid();
+            restartTimer();
+            levelEl.textContent = level;
+            maxStepsEl.textContent = maxSteps;
+        }
+
+        function renderSequence() {
+            seqEl.innerHTML = '';
+            for (let i = 0; i < maxSteps; i++) {
+                const s = document.createElement('div');
+                s.className = 'slot';
+                if (sequence[i]) {
+                    s.textContent = arrowFor(sequence[i]);
+                    s.dataset.pos = i;
+                    s.onclick = () => { sequence.splice(i, 1); renderSequence(); }
+                } else {
+                    s.textContent = '';
+                }
+                seqEl.appendChild(s);
+            }
+        }
+
+        function arrowFor(a) { return a === 'up' ? '↑' : a === 'down' ? '↓' : a === 'left' ? '←' : '→'; }
+
+        document.querySelectorAll('.btn[data-action]').forEach(b => {
+            b.addEventListener('click', () => {
+                if (sequence.length >= maxSteps) return;
+                sequence.push(b.dataset.action);
+                renderSequence();
+            });
+        });
+        document.getElementById('clear').addEventListener('click', () => {
+            sequence = []; renderSequence();
+        });
+        document.getElementById('shuffleBtn').addEventListener('click', () => {
+            level++; if (level > 5) level = 1; // cycle difficulty
+            if (level <= 2) maxSteps = 4; else if (level <= 4) maxSteps = 6; else maxSteps = 8;
+            newPuzzle();
+        });
+
+        function moveIndex(idx, dir) {
+            const r = Math.floor(idx / 3), c = idx % 3;
+            if (dir === 'up' && r > 0) return idx - 3;
+            if (dir === 'down' && r < 2) return idx + 3;
+            if (dir === 'left' && c > 0) return idx - 1;
+            if (dir === 'right' && c < 2) return idx + 1;
+            return idx; // can't move
+        }
+
+        function playSequence() {
+            if (running) return;
+            running = true;
+            let i = 0;
+            let pos = robotPos;
+            const stepDelay = 450;
+            const moves = [...sequence]; // clone
+            let reached = false;
+
+            function step() {
+                if (i >= moves.length) {
+                    running = false;
+                    finishRun(pos);
+                    return;
+                }
+                const dir = moves[i];
+                const newPos = moveIndex(pos, dir);
+                // animate change: show arrow in cell briefly
+                const fromCell = gridEl.children[pos];
+                const toCell = gridEl.children[newPos];
+                // briefly highlight
+                toCell.style.boxShadow = '0 4px 14px rgba(74,144,226,0.4)';
+                setTimeout(() => { toCell.style.boxShadow = ''; }, stepDelay - 80);
+                pos = newPos;
+                i++;
+                renderExecution(pos);
+                if (pos === goalPos) {
+                    reached = true;
+                    running = false;
+                    finishRun(pos, true);
+                    return;
+                }
+                setTimeout(step, stepDelay);
+            }
+            step();
+        }
+
+        function renderExecution(currentPos) {
+            // render with robot in moving position
+            for (let i = 0; i < 9; i++) {
+                const cell = gridEl.children[i];
+                cell.className = 'cell';
+                cell.innerHTML = '';
+            }
+            gridEl.children[goalPos].classList.add('goal');
+            gridEl.children[goalPos].innerHTML = '⭐';
+            gridEl.children[currentPos].classList.add('robot');
+            gridEl.children[currentPos].innerHTML = '🤖';
+        }
+
+        function finishRun(finalPos, success = false) {
+            running = false;
+            if (success) {
+                showPopup(true);
+                // success hook: call this to trigger robot/tablet blessing animation or server
+                try { if (window.onSuccess) window.onSuccess({ level, timeLeft }); } catch (e) { }
+            } else {
+                showPopup(false);
+            }
+        }
+
+        function showPopup(success) {
+            popup.style.display = 'flex';
+            if (success) {
+                popupContent.innerHTML = `
+      <div style="font-size:18px;font-weight:700">You did it! 🎉</div>
+      <div style="margin-top:8px">Blessing unlocked — show this to the robot tablet.</div>
+      <div class="firework"></div>
+    `;
+            } else {
+                popupContent.innerHTML = `
+      <div style="font-size:18px;font-weight:700">Try again!</div>
+      <div style="margin-top:8px">Use a different sequence or press New Puzzle.</div>
+    `;
+            }
+        }
+
+        document.getElementById('closePopup').addEventListener('click', () => { popup.style.display = 'none'; });
+
+        document.getElementById('runBtn').addEventListener('click', () => {
+            if (sequence.length === 0) return;
+            playSequence();
+        });
+
+        // timer
+        function restartTimer() {
+            stopTimer();
+            timeLeft = 60;
+            timerEl.textContent = timeLeft;
+            timerId = setInterval(() => {
+                timeLeft--;
+                if (timeLeft <= 0) { stopTimer(); timerEl.textContent = 0; showPopup(false); }
+                else timerEl.textContent = timeLeft;
+            }, 1000);
+        }
+        function stopTimer() { if (timerId) clearInterval(timerId); timerId = null; }
+
+        // onSuccess hook (default: play audio & confetti animation)
+        window.onSuccess = function (data) {
+            // Play a short blessing sound (be sure device volume on)
+            try {
+                const s = new Audio('https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg');
+                s.play().catch(() => { });
+            } catch (e) { }
+            // You can replace this function to send a websocket to ESP32 or trigger any other action.
+            // Example:
+            // if(ws && ws.readyState===1) ws.send('PLAYER_SUCCESS:'+JSON.stringify(data));
+        };
+
+        createGrid();
+        newPuzzle();
+    </script>
+</body>
+
+</html>
