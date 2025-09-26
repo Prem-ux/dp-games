@@ -2,8 +2,8 @@
   "sawari": [
     {
       "id": "lion",
-      "x": 0.4624248496993988,
-      "y": 0.7042423534450869,
+      "x": 0.4248496993987976,
+      "y": 0.8211623246492986,
       "label": "Lion (Durga's Sawari)",
       "story_en": "Maa Durga rides the lion. It symbolizes courage and power.",
       "story_hi": "माँ दुर्गा सिंह पर सवार होती हैं; यह साहस और शक्ति का प्रतीक है।",
@@ -12,8 +12,8 @@
     },
     {
       "id": "mouse",
-      "x": 0.06663326653306613,
-      "y": 0.7976948386971165,
+      "x": 0.03507014028056112,
+      "y": 0.9391583166332665,
       "label": "Mouse (Ganesha's Sawari)",
       "story_en": "Ganesha's vehicle is the mouse — clever and quick.",
       "story_hi": "गणेश का वाहन मूषक है — चालाक और तेज।",
@@ -22,8 +22,8 @@
     },
     {
       "id": "peacock",
-      "x": 0.8902805611222445,
-      "y": 0.772774175963242,
+      "x": 0.9408817635270541,
+      "y": 0.9374482297929192,
       "label": "Peacock (Kartikeya's Sawari)",
       "story_en": "Kartikeya often rides a peacock, symbolizing beauty and pride.",
       "story_hi": "कार्तिकेय मोर पर सवार रहते हैं; यह सुंदरता और गर्व का प्रतीक है।",
@@ -32,8 +32,8 @@
     },
     {
       "id": "owl",
-      "x": 0.19589178356713427,
-      "y": 0.7628059108696922,
+      "x": 0.15130260521042085,
+      "y": 0.9066666666666666,
       "label": "Owl (Lakshmi's Sawari)",
       "story_en": "The owl is associated with Lakshmi and symbolizes wisdom and alertness.",
       "story_hi": "उल्लूक (उल्लू) को लक्ष्मी से जोड़ा जाता है; यह बुद्धि और सतर्कता का प्रतीक है।",
@@ -42,8 +42,8 @@
     },
     {
       "id": "swan",
-      "x": 0.8301603206412825,
-      "y": 0.7889726067402605,
+      "x": 0.8577154308617234,
+      "y": 0.9459986639946559,
       "label": "Swan (Saraswati's Sawari)",
       "story_en": "The swan (hamsa) is Saraswati's vehicle and represents purity and discrimination of knowledge.",
       "story_hi": "हंस सरस्वती का वाहन है; यह पवित्रता और ज्ञान की विवेकशीलता का प्रतीक है।",
@@ -52,8 +52,8 @@
     },
     {
       "id": "buffalo",
-      "x": 0.44639278557114226,
-      "y": 0.7802503747834044,
+      "x": 0.4248496993987976,
+      "y": 0.9340280561122245,
       "label": "Buffalo (Mahishasura association)",
       "story_en": "The buffalo is associated with the demon Mahishasura, whom Maa Durga defeated in the legend.",
       "story_hi": "भैंसा (महिष) का संबंध महिषासुर से है, जिसे मां दुर्गा ने पराजित किया।",
@@ -66,8 +66,8 @@
   "weapons": [
     {
       "id": "trishul",
-      "x": 0.4483967935871743,
-      "y": 0.43759126219262895,
+      "x": 0.405811623246493,
+      "y": 0.3252371409485638,
       "label": "Trishul (Trident)",
       "story_en": "The Trishul destroys evil and ignorance.",
       "story_hi": "त्रिशूल बुराई और अज्ञानता को नष्ट करता है।",
@@ -76,8 +76,8 @@
     },
     {
       "id": "sword",
-      "x": 0.43236472945891785,
-      "y": 0.34289274380390555,
+      "x": 0.3847695390781563,
+      "y": 0.421002004008016,
       "label": "Sword",
       "story_en": "The sword represents knowledge which cuts through falsehood.",
       "story_hi": "तलवार ज्ञान का प्रतिनिधित्व करती है जो असत्य को काट देती है।",
@@ -86,8 +86,8 @@
     },
     {
       "id": "lotus",
-      "x": 0.58,
-      "y": 0.33,
+      "x": 0.5961923847695391,
+      "y": 0.279064796259185,
       "label": "Lotus",
       "story_en": "The lotus stands for purity and spiritual consciousness.",
       "story_hi": "कमल पवित्रता और आध्यात्मिक चेतना का प्रतीक है।",
@@ -96,8 +96,8 @@
     },
     {
       "id": "kartikeya_vel",
-      "x": 0.8391783567134269,
-      "y": 0.5597025095886143,
+      "x": 0.8627254509018036,
+      "y": 0.581750167000668,
       "label": "Vel (Kartikeya's Spear)",
       "story_en": "The Vel is Kartikeya's spear — a symbol of valor and victory.",
       "story_hi": "वेल कार्तिकेय की भाला है — यह वीरता और विजय का प्रतीक है।",
@@ -108,8 +108,8 @@
   "gods": [
     {
       "id": "ganesha",
-      "x": 0.12374749498997996,
-      "y": 0.7652979771430797,
+      "x": 0.08617234468937876,
+      "y": 0.884435537742151,
       "label": "Ganesha",
       "story_en": "Ganesha is the remover of obstacles and lord of beginnings.",
       "story_hi": "गणेश बाधाओं को दूर करने वाले और आरम्भ के देवता हैं।",
@@ -118,8 +118,8 @@
     },
     {
       "id": "lakshmi",
-      "x": 0.2850701402805611,
-      "y": 0.7079804528551681,
+      "x": 0.2665330661322645,
+      "y": 0.7732798931195725,
       "label": "Lakshmi",
       "story_en": "Lakshmi is goddess of wealth and prosperity.",
       "story_hi": "लक्ष्मी धन और समृद्धि की देवी हैं।",
@@ -128,8 +128,8 @@
     },
     {
       "id": "durga",
-      "x": 0.44138276553106215,
-      "y": 0.6519089617039503,
+      "x": 0.4468937875751503,
+      "y": 0.7065865063460254,
       "label": "Durga",
       "story_en": "Maa Durga is a powerful mother goddess who defeats evil.",
       "story_hi": "माँ दुर्गा एक शक्तिशाली मातृदेवी हैं जो बुराईयों पर विजय पाती हैं।",
@@ -138,8 +138,8 @@
     },
     {
       "id": "saraswati",
-      "x": 0.7,
-      "y": 0.5,
+      "x": 0.7585170340681363,
+      "y": 0.790380761523046,
       "label": "Saraswati",
       "story_en": "Saraswati is goddess of knowledge, music, and arts.",
       "story_hi": "सरस्वती ज्ञान, संगीत और कला की देवी हैं।",
@@ -148,8 +148,8 @@
     },
     {
       "id": "kartikeya",
-      "x": 0.937374749498998,
-      "y": 0.7578217783229173,
+      "x": 0.9759519038076152,
+      "y": 0.8673346693386773,
       "label": "Kartikeya",
       "story_en": "Kartikeya is a warrior god and commander of the gods.",
       "story_hi": "कार्तिकेय एक योद्धा देवता और देवताओं के सेनापति हैं।",

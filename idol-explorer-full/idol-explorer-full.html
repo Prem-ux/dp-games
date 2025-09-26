@@ -300,12 +300,94 @@
     function updateVoiceIndicator() { const ind = $('voiceIndicator'); if (!ind) return; const lang = ($('langSel') && $('langSel').value) ? $('langSel').value : 'en'; const v = pickVoiceForLang(lang); if (v) { ind.textContent = lang.toUpperCase() + ' voice ✓'; ind.style.background = '#e6ffed'; ind.style.color = '#0b6b2f'; } else { ind.textContent = lang.toUpperCase() + ' voice ✕ (fallback)'; ind.style.background = '#fff4f4'; ind.style.color = '#8b0000'; } }
     document.addEventListener('change', (e) => { if (e.target && e.target.id === 'langSel') updateVoiceIndicator(); });
 
+    // AUDIO: reuse single Audio element for playback
+    const audioEl = new Audio();
+    audioEl.preload = 'auto';
+    audioEl.crossOrigin = 'anonymous';
+
+    // compute audio path or use explicit audio fields if present
+    function computedAudioPath(hotspotId, lang) {
+      const safeId = encodeURIComponent(hotspotId);
+      const safeLang = (lang === 'hi' || lang === 'bn') ? lang : 'en';
+      return `assets/audio/${safeId}_${safeLang}.wav`;
+    }
+
+    function getAudioFromHotspot(h, lang) {
+      if (h && h.audio) {
+        if (h.audio[lang]) return h.audio[lang];
+        if (h.audio['en']) return h.audio['en'];
+        const keys = Object.keys(h.audio);
+        if (keys.length) return h.audio[keys[0]];
+      }
+      return computedAudioPath(h.id, lang);
+    }
+
+    async function tryPlayUrl(url) {
+      try {
+        audioEl.pause();
+        audioEl.src = url;
+        audioEl.currentTime = 0;
+        try { await audioEl.load(); } catch (e) { /* ignore */ }
+        await audioEl.play();
+        console.log('Playing audio:', url);
+        return true;
+      } catch (e) {
+        console.warn('Audio play failed for', url, e);
+        return false;
+      }
+    }
+
     // UI & hotspots
     function makeHotspot(h) { const el = document.createElement('div'); el.className = 'hotspot'; el.style.left = (h.x * 100) + '%'; el.style.top = (h.y * 100) + '%'; const dot = document.createElement('div'); dot.className = 'hsdot'; const img = document.createElement('img'); img.src = h.icon; img.alt = h.id; dot.appendChild(img); el.appendChild(dot); el.addEventListener('click', () => onHotspotClick(h)); return el; }
     function renderHotspots() { const wrap = $('imgWrap'); wrap.querySelectorAll('.hotspot').forEach(n => n.remove()); (HOTSPOTS[mode] || []).forEach(h => wrap.appendChild(makeHotspot(h))); updateProgress(); }
-    function getTextFor(h) { const lang = ($('langSel') && $('langSel').value) ? $('langSel').value : 'en'; if (lang === 'hi') return { label: h.label_hi || h.label_en || h.id, story: h.story_hi || h.story_en || '' }; if (lang === 'bn') return { label: h.label_bn || h.label_en || h.id, story: h.story_bn || h.story_en || '' }; return { label: h.label_en || h.label || h.id, story: h.story_en || h.story || '' }; }
+    function getTextFor(h) { const lang = ($('langSel') && $('langSel').value) ? $('langSel').value : 'en'; if (lang === 'hi') return { label: h.label_hi || h.label_en || h.label || h.id, story: h.story_hi || h.story_en || h.story || '' }; if (lang === 'bn') return { label: h.label_bn || h.label_en || h.label || h.id, story: h.story_bn || h.story_en || h.story || '' }; return { label: h.label_en || h.label || h.id, story: h.story_en || h.story || '' }; }
 
-    function onHotspotClick(h) { const t = getTextFor(h); const selectedLang = ($('langSel') && $('langSel').value) ? $('langSel').value : 'en'; const popup = document.createElement('div'); popup.style.position = 'absolute'; popup.style.left = (h.x * 100) + '%'; popup.style.top = (h.y * 100 - 6) + '%'; popup.style.transform = 'translate(-50%,-100%)'; popup.style.background = '#fff'; popup.style.color = '#071122'; popup.style.padding = '10px'; popup.style.borderRadius = '8px'; popup.style.boxShadow = '0 8px 24px rgba(2,6,23,0.12)'; popup.innerHTML = '<strong>' + t.label + '</strong><div style="font-size:13px;margin-top:6px">' + t.story + '</div>'; $('imgWrap').appendChild(popup); setTimeout(() => popup.remove(), 5200); const audioField = 'audio_' + selectedLang; if (h[audioField]) { try { const a = new Audio(h[audioField]); a.play(); } catch (e) { console.warn('audio play failed', e); speakText(t.story, selectedLang); } } else { const v = pickVoiceForLang(selectedLang); if (!v) showToast(selectedLang.toUpperCase() + ' voice not available — using fallback'); speakText(t.story, selectedLang); } markFound(h); }
+    // on hotspot click: try WAV file first, fallback to TTS
+    async function onHotspotClick(h) {
+      const t = getTextFor(h);
+      const selectedLang = ($('langSel') && $('langSel').value) ? $('langSel').value : 'en';
+
+      // popup visual
+      const popup = document.createElement('div');
+      popup.style.position = 'absolute';
+      popup.style.left = (h.x * 100) + '%';
+      popup.style.top = (h.y * 100 - 6) + '%';
+      popup.style.transform = 'translate(-50%,-100%)';
+      popup.style.background = '#fff';
+      popup.style.color = '#071122';
+      popup.style.padding = '10px';
+      popup.style.borderRadius = '8px';
+      popup.style.boxShadow = '0 8px 24px rgba(2,6,23,0.12)';
+      popup.innerHTML = '<strong>' + t.label + '</strong><div style="font-size:13px;margin-top:6px">' + t.story + '</div>';
+      $('imgWrap').appendChild(popup);
+      setTimeout(() => popup.remove(), 5200);
+
+      // determine audio URL (explicit or computed)
+      const candidate = getAudioFromHotspot(h, selectedLang);
+
+      // attempt to play candidate. If it fails, try english fallback if not already english.
+      let played = false;
+      if (candidate) {
+        played = await tryPlayUrl(candidate);
+      }
+
+      if (!played && selectedLang !== 'en') {
+        const enCandidate = getAudioFromHotspot(h, 'en');
+        if (enCandidate && enCandidate !== candidate) {
+          played = await tryPlayUrl(enCandidate);
+        }
+      }
+
+      // if still not played, use in-browser TTS (speechSynthesis)
+      if (!played) {
+        console.warn('Falling back to speechSynthesis for', h.id);
+        const v = pickVoiceForLang(selectedLang);
+        if (!v) showToast(selectedLang.toUpperCase() + ' voice not available — using fallback');
+        speakText(t.story, selectedLang);
+      }
+
+      markFound(h);
+    }
 
     function markFound(h) { if (found[mode].has(h.id)) return; found[mode].add(h.id); addBadge(h); updateProgress(); if (found[mode].size >= (HOTSPOTS[mode] || []).length) { celebrate(); setTimeout(() => openQuizForMode(mode), 550); } }
     function addBadge(h) { const key = mode + '-' + h.id; if (document.getElementById(key)) return; const b = document.createElement('div'); b.className = 'badge'; b.id = key; const t = getTextFor(h); b.innerHTML = '<img src="' + h.icon + '" style="width:28px;height:28px;border-radius:6px;margin-right:8px"/>' + t.label; $('collectionArea').appendChild(b); }
@@ -318,19 +400,217 @@
     function checkQuiz(choice, ans) { if (choice === ans) showToast('Correct! Bonus unlocked.'); else showToast('Not quite — try another mode!'); closeQuiz(); }
     function closeQuiz() { $('quizPopup').style.display = 'none'; }
 
-    // certificate
-    function downloadCertificate() { const child = ($('childName') && $('childName').value) ? $('childName').value : 'Young Explorer'; const c = document.createElement('canvas'); c.width = 1200; c.height = 675; const ctx = c.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, c.height); ctx.fillStyle = '#071122'; ctx.font = '36px sans-serif'; ctx.fillText('Certificate of Exploration', 50, 70); ctx.font = '24px sans-serif'; ctx.fillText('Awarded to: ' + child, 50, 120); ctx.font = '18px sans-serif'; ctx.fillText('Badges:', 50, 160); let y = 200; const items = Array.from($('collectionArea').children).map(c => c.textContent.trim()); if (items.length) { ctx.font = '20px sans-serif'; items.forEach(it => { ctx.fillText('• ' + it, 60, y); y += 34; }); } else { ctx.fillStyle = '#444'; ctx.font = '18px sans-serif'; ctx.fillText('No badges collected yet.', 50, y); } ctx.fillStyle = '#666'; ctx.font = '14px sans-serif'; ctx.fillText("Minu's Robotics & Coding - Happy Puja!", 50, c.height - 40); const url = c.toDataURL('image/png'); const a = document.createElement('a'); a.href = url; a.download = 'certificate-' + child.replace(/\s+/g, '_') + '.png'; a.click(); }
+    // ---------- Universal download/share helpers (works well on iOS) ----------
+    // Convert dataURL to Blob
+    function dataURLToBlob(dataURL) {
+      const parts = dataURL.split(',');
+      const meta = parts[0].match(/:(.*?);/);
+      const mime = meta ? meta[1] : 'image/png';
+      const bstr = atob(parts[1]);
+      let n = bstr.length;
+      const u8 = new Uint8Array(n);
+      while (n--) u8[n] = bstr.charCodeAt(n);
+      return new Blob([u8], { type: mime });
+    }
+
+    // Save blob as file: prefer Web Share, then anchor download, then open in new tab + instruction
+    async function saveBlobAsFile(blob, filename = 'file.png') {
+      // Try Web Share (native share sheet)
+      try {
+        const file = new File([blob], filename, { type: blob.type });
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          await navigator.share({ files: [file], title: filename, text: 'Sharing from Idol Explorer' });
+          return { method: 'share' };
+        }
+      } catch (e) {
+        // ignore and continue to next fallback
+        console.warn('Web Share failed:', e);
+      }
+
+      // Try anchor download
+      try {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        // Some browsers require the anchor to be in the document
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        // Revoke after giving the browser time
+        setTimeout(() => URL.revokeObjectURL(url), 15000);
+        return { method: 'download' };
+      } catch (e) {
+        console.warn('Anchor download failed:', e);
+      }
+
+      // Final fallback: open in new tab and instruct user to long-press & save (works on iPhone)
+      try {
+        const url = URL.createObjectURL(blob);
+        window.open(url, '_blank');
+        setTimeout(() => URL.revokeObjectURL(url), 30000);
+        return { method: 'open' };
+      } catch (e) {
+        console.warn('Open fallback failed:', e);
+        return { method: 'none' };
+      }
+    }
+
+    // ---------- Certificate download (uses saveBlobAsFile) ----------
+    async function downloadCertificate() {
+      const child = ($('childName') && $('childName').value) ? $('childName').value : 'Young Explorer';
+      const c = document.createElement('canvas');
+      c.width = 1200;
+      c.height = 675;
+      const ctx = c.getContext('2d');
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(0, 0, c.width, c.height);
+      ctx.fillStyle = '#071122';
+      ctx.font = '36px sans-serif';
+      ctx.fillText('Certificate of Exploration', 50, 70);
+      ctx.font = '24px sans-serif';
+      ctx.fillText('Awarded to: ' + child, 50, 120);
+      ctx.font = '18px sans-serif';
+      ctx.fillText('Badges:', 50, 160);
+      let y = 200;
+      const items = Array.from($('collectionArea').children).map(c => c.textContent.trim());
+      if (items.length) {
+        ctx.font = '20px sans-serif';
+        items.forEach(it => { ctx.fillText('• ' + it, 60, y); y += 34; });
+      } else {
+        ctx.fillStyle = '#444';
+        ctx.font = '18px sans-serif';
+        ctx.fillText('No badges collected yet.', 50, y);
+      }
+      ctx.fillStyle = '#666';
+      ctx.font = '14px sans-serif';
+      ctx.fillText("Minu's Robotics & Coding - Happy Puja!", 50, c.height - 40);
+      const dataURL = c.toDataURL('image/png');
+      const blob = dataURLToBlob(dataURL);
+      const filename = 'certificate-' + child.replace(/\s+/g, '_') + '.png';
+
+      const result = await saveBlobAsFile(blob, filename);
+      if (result.method === 'open') {
+        showToast('Opened in new tab — long-press the image and choose "Save Image" to store it on iPhone.');
+      } else if (result.method === 'none') {
+        showToast('Unable to download automatically. Try long-pressing the image or take a screenshot.');
+      } else {
+        showToast('Certificate saved/shared.');
+      }
+    }
 
     // selfie capture (simple)
     let lastComposite = null;
-    document.addEventListener('click', function (e) { if (e.target && e.target.id === 'selfieBtn') { startSelfieCapture(); } if (e.target && e.target.id === 'shareBtn') { if (lastComposite) { const a = document.createElement('a'); a.href = lastComposite; a.download = 'selfie_overlay.png'; a.click(); } else { showToast('Take a selfie first'); } } });
+    let lastCompositeBlob = null;
 
-    function startSelfieCapture() { navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } }).then(stream => { const v = document.createElement('video'); v.autoplay = true; v.playsInline = true; v.srcObject = stream; const overlay = document.createElement('div'); overlay.style.position = 'fixed'; overlay.style.inset = 0; overlay.style.background = 'rgba(0,0,0,0.6)'; overlay.style.display = 'flex'; overlay.style.alignItems = 'center'; overlay.style.justifyContent = 'center'; overlay.style.zIndex = 9999; const card = document.createElement('div'); card.style.background = '#fff'; card.style.padding = '10px'; card.style.borderRadius = '10px'; v.style.maxWidth = '420px'; const btn = document.createElement('button'); btn.textContent = 'Capture'; btn.className = 'btn'; card.appendChild(v); card.appendChild(btn); overlay.appendChild(card); document.body.appendChild(overlay); btn.onclick = () => { const w = v.videoWidth, h = v.videoHeight; const c = document.createElement('canvas'); c.width = w; c.height = h; const ctx = c.getContext('2d'); ctx.drawImage(v, 0, 0, w, h); stream.getTracks().forEach(t => t.stop()); overlay.remove(); const data = c.toDataURL('image/png'); compositeSelfie(data); }; }).catch(e => { showToast('Camera unavailable'); }); }
+    document.addEventListener('click', function (e) {
+      if (e.target && e.target.id === 'selfieBtn') { startSelfieCapture(); }
+      if (e.target && e.target.id === 'shareBtn') {
+        if (lastCompositeBlob) {
+          // Use unified save function
+          (async () => {
+            const filename = 'selfie_overlay.png';
+            const res = await saveBlobAsFile(lastCompositeBlob, filename);
+            if (res.method === 'open') {
+              showToast('Opened in new tab — long-press the image and choose "Save Image" to store it on iPhone.');
+            } else if (res.method === 'none') {
+              showToast('Unable to download automatically. Try long-pressing the image or take a screenshot.');
+            } else {
+              showToast('Selfie saved/shared.');
+            }
+          })();
+        } else {
+          showToast('Take a selfie first');
+        }
+      }
+    });
 
-    function compositeSelfie(dataUrl) { const idol = document.getElementById('idol'); const c = document.createElement('canvas'); const w = Math.max(900, idol.naturalWidth || 900); const h = Math.max(600, idol.naturalHeight || 600); c.width = w; c.height = h; const ctx = c.getContext('2d'); const idolImg = new Image(); idolImg.src = idol.src; idolImg.onload = () => { ctx.drawImage(idolImg, 0, 0, w, h); const selfie = new Image(); selfie.src = dataUrl; selfie.onload = () => { const sw = Math.floor(w * 0.28); const sh = Math.floor(sw * (selfie.height / selfie.width)); const sx = w - sw - 40; const sy = h - sh - 40; ctx.save(); ctx.beginPath(); ctx.arc(sx + sw / 2, sy + sh / 2, Math.min(sw, sh) / 2, 0, Math.PI * 2); ctx.closePath(); ctx.clip(); ctx.drawImage(selfie, sx, sy, sw, sh); ctx.restore(); lastComposite = c.toDataURL('image/png'); const pp = document.getElementById('selfiePreview'); pp.innerHTML = '<img src="' + lastComposite + '">'; showToast('Selfie composited'); }; }; }
+    function startSelfieCapture() {
+      navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } }).then(stream => {
+        const v = document.createElement('video');
+        v.autoplay = true;
+        v.playsInline = true;
+        v.srcObject = stream;
+        const overlay = document.createElement('div');
+        overlay.style.position = 'fixed';
+        overlay.style.inset = 0;
+        overlay.style.background = 'rgba(0,0,0,0.6)';
+        overlay.style.display = 'flex';
+        overlay.style.alignItems = 'center';
+        overlay.style.justifyContent = 'center';
+        overlay.style.zIndex = 9999;
+        const card = document.createElement('div');
+        card.style.background = '#fff';
+        card.style.padding = '10px';
+        card.style.borderRadius = '10px';
+        v.style.maxWidth = '420px';
+        const btn = document.createElement('button');
+        btn.textContent = 'Capture';
+        btn.className = 'btn';
+        card.appendChild(v);
+        card.appendChild(btn);
+        overlay.appendChild(card);
+        document.body.appendChild(overlay);
+        btn.onclick = () => {
+          const w = v.videoWidth, h = v.videoHeight;
+          const c = document.createElement('canvas');
+          c.width = w;
+          c.height = h;
+          const ctx = c.getContext('2d');
+          ctx.drawImage(v, 0, 0, w, h);
+          stream.getTracks().forEach(t => t.stop());
+          overlay.remove();
+          const data = c.toDataURL('image/png');
+          compositeSelfie(data);
+        };
+      }).catch(e => { showToast('Camera unavailable'); });
+    }
+
+    function compositeSelfie(dataUrl) {
+      const idol = document.getElementById('idol');
+      const c = document.createElement('canvas');
+      const w = Math.max(900, idol.naturalWidth || 900);
+      const h = Math.max(600, idol.naturalHeight || 600);
+      c.width = w;
+      c.height = h;
+      const ctx = c.getContext('2d');
+      const idolImg = new Image();
+      idolImg.crossOrigin = 'anonymous';
+      idolImg.src = idol.src;
+      idolImg.onload = () => {
+        ctx.drawImage(idolImg, 0, 0, w, h);
+        const selfie = new Image();
+        selfie.src = dataUrl;
+        selfie.onload = () => {
+          const sw = Math.floor(w * 0.28);
+          const sh = Math.floor(sw * (selfie.height / selfie.width));
+          const sx = w - sw - 40;
+          const sy = h - sh - 40;
+          ctx.save();
+          ctx.beginPath();
+          ctx.arc(sx + sw / 2, sy + sh / 2, Math.min(sw, sh) / 2, 0, Math.PI * 2);
+          ctx.closePath();
+          ctx.clip();
+          ctx.drawImage(selfie, sx, sy, sw, sh);
+          ctx.restore();
+          lastComposite = c.toDataURL('image/png');
+          lastCompositeBlob = dataURLToBlob(lastComposite);
+          const pp = document.getElementById('selfiePreview');
+          pp.innerHTML = '<img src="' + lastComposite + '">';
+          showToast('Selfie composited');
+        };
+      };
+    }
 
     // init after load
-    function init() { document.getElementById('siteTitle').textContent = 'Idol Explorer — Full'; document.getElementById('modeSawari').addEventListener('click', () => { mode = 'sawari'; renderHotspots(); }); document.getElementById('modeWeapons').addEventListener('click', () => { mode = 'weapons'; renderHotspots(); }); document.getElementById('modeGods').addEventListener('click', () => { mode = 'gods'; renderHotspots(); }); document.getElementById('downloadCert').addEventListener('click', downloadCertificate); renderHotspots(); updateProgress(); updateVoiceIndicator(); }
+    function init() {
+      document.getElementById('siteTitle').textContent = 'Idol Explorer — Full';
+      document.getElementById('modeSawari').addEventListener('click', () => { mode = 'sawari'; renderHotspots(); });
+      document.getElementById('modeWeapons').addEventListener('click', () => { mode = 'weapons'; renderHotspots(); });
+      document.getElementById('modeGods').addEventListener('click', () => { mode = 'gods'; renderHotspots(); });
+      document.getElementById('downloadCert').addEventListener('click', downloadCertificate);
+      renderHotspots(); updateProgress(); updateVoiceIndicator();
+    }
   </script>
 </body>
 
