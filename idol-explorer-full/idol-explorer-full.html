@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Idol Explorer — Full</title>
+  <title>Festive Learning with Minu’s Robotics & Coding Club - Durga Puja</title>
   <style>
     :root {
       --accent: #ff6f00;
@@ -237,11 +237,16 @@
 </head>
 
 <body>
+  <div id="orientationOverlay" style="position:fixed;inset:0;display:none;align-items:center;justify-content:center;
+            background:#000;color:#fff;font-size:20px;font-weight:700;z-index:2000;text-align:center;">
+    Please rotate your device to <br> <span style="color:#ffd54a">Landscape Mode</span>
+  </div>
   <div class="wrap">
     <div class="header">
       <div>
-        <h1 id="siteTitle">Idol Explorer — Full</h1>
-        <div style="color:var(--muted);font-size:14px">Interactive, multilingual, editable — designed for puja education
+        <h1 id="siteTitle">Idol Explorer — Festive Learning with Minu’s Robotics & Coding</h1>
+        <div style="color:var(--muted);font-size:14px">Make <Code /> Play. Explore Gods, Weapons, and Vahaans through
+          interactive learning.
         </div>
       </div>
       <div class="controls">
@@ -252,7 +257,7 @@
         </select>
         <span id="voiceIndicator" class="langIndicator">checking…</span>
         <button class="btn" id="modeSawari">Discover Vahaans</button>
-        <button class="btn" id="modeWeapons">Discover Weapons</button>
+        <button class="btn" id="modeWeapons">Shakti and Symbols</button>
         <button class="btn" id="modeGods">Name the Gods</button>
         <button class="btn" id="modeDemons">Meet Demons</button>
         <input id="childName" placeholder="Child name (optional)"
@@ -278,7 +283,8 @@
         <div style="flex:1"></div>
       </div>
       <div class="selfiePreview" id="selfiePreview" aria-hidden="true"></div>
-      <div class="footer">Designed by Minu's Robotics & Coding — replace assets/hotspots.json to edit content.</div>
+      <div class="footer">Powered by <a href="https://minugames.com" target="_blank">Minu’s
+          Robotics & Coding Center, Kishanganj</a> | Coding Sikho — Future Banao</div>
     </div>
   </div>
   <div class="confettiWrap" id="confettiWrap"></div>
