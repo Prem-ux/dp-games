@@ -1,0 +1,396 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Minu's Fix-the-Code Puzzle</title>
+    <style>
+        :root {
+            --bg: #071126;
+            --card: #f6f9fc;
+            --accent: #4a90e2;
+            --muted: #6b7280
+        }
+
+        body {
+            margin: 0;
+            font-family: system-ui, Segoe UI, Roboto, Arial;
+            background: var(--bg);
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 14px
+        }
+
+        .wrap {
+            width: 100%;
+            max-width: 720px
+        }
+
+        header {
+            margin-bottom: 12px
+        }
+
+        h1 {
+            margin: 6px 0;
+            font-size: 20px
+        }
+
+        p.lead {
+            margin: 0;
+            color: #bcd0ea
+        }
+
+        .card {
+            background: var(--card);
+            color: #071126;
+            border-radius: 12px;
+            padding: 12px;
+            margin-top: 10px
+        }
+
+        .puzzleTitle {
+            font-weight: 700;
+            margin-bottom: 8px
+        }
+
+        .blocks {
+            display: flex;
+            flex-direction: column;
+            gap: 8px
+        }
+
+        .block {
+            background: #fff;
+            border-radius: 8px;
+            padding: 12px 10px;
+            font-weight: 700;
+            box-shadow: 0 6px 18px rgba(2, 6, 23, 0.06);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer
+        }
+
+        .block.small {
+            font-size: 14px;
+            padding: 10px
+        }
+
+        .hint {
+            color: var(--muted);
+            font-size: 13px;
+            margin-top: 8px
+        }
+
+        .controls {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 10px
+        }
+
+        .btn {
+            background: var(--accent);
+            color: #fff;
+            padding: 10px 14px;
+            border-radius: 10px;
+            border: none;
+            font-weight: 700
+        }
+
+        .btn.alt {
+            background: #e8eef9;
+            color: #071126
+        }
+
+        .status {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 8px
+        }
+
+        .timer {
+            background: #ffd54a;
+            color: #071126;
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-weight: 700
+        }
+
+        .overlay {
+            position: fixed;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 200
+        }
+
+        .popup {
+            background: var(--card);
+            color: #071126;
+            padding: 18px;
+            border-radius: 12px;
+            text-align: center;
+            max-width: 360px
+        }
+
+        .successEmoji {
+            font-size: 46px;
+            margin-bottom: 8px
+        }
+
+        footer {
+            margin-top: 12px;
+            color: #9fb0d6;
+            font-size: 13px;
+            text-align: center
+        }
+
+        @media(max-width:420px) {
+            .block {
+                padding: 10px;
+                font-size: 15px
+            }
+
+            .btn {
+                flex: 1
+            }
+
+            .controls {
+                flex-direction: column
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrap">
+        <header>
+            <h1>Minu’s Fix-the-Code Puzzle</h1>
+            <p class="lead">Rearrange the code steps into the correct order. Tap one block, then tap another to swap.
+                Solve within 60s to unlock the blessing!</p>
+        </header>
+
+        <div class="card" id="gameCard">
+            <div class="puzzleTitle" id="puzzleTitle">Loading puzzle...</div>
+            <div class="blocks" id="blocks"></div>
+
+            <div class="hint" id="hintText">Tap a block to select, then tap another block to swap them.</div>
+
+            <div class="status">
+                <div style="display:flex;gap:8px;align-items:center">
+                    <button class="btn" id="checkBtn">Check</button>
+                    <button class="btn alt" id="shuffleBtn">New Puzzle</button>
+                </div>
+                <div class="timer" id="timer">60</div>
+            </div>
+
+            <div class="controls" style="margin-top:10px">
+                <button class="btn alt" id="showAnswer">Show Answer</button>
+            </div>
+        </div>
+
+        <footer>Designed for Minu's Coding Wall — quick puzzles for kids.</footer>
+    </div>
+
+    <div class="overlay" id="overlay">
+        <div class="popup" id="popup">
+            <div id="popupContent"></div>
+            <div style="margin-top:12px"><button class="btn" id="closePopup">Close</button></div>
+        </div>
+    </div>
+
+    <script>
+        /* Fix-the-Code Puzzle
+           Mobile-friendly tap-to-swap UX.
+           Call window.onSuccess({puzzleId, timeLeft}) on solve.
+        */
+
+        const puzzles = [
+            {
+                id: 'lamp-1',
+                title: 'Light the Diya',
+                // correct order array of strings
+                answer: [
+                    'Turn on Power',
+                    'Place Diya on Plate',
+                    'Switch on LED (diya)'
+                ],
+                hint: 'Power -> place diya -> switch on'
+            },
+            {
+                id: 'water-1',
+                title: 'Water the Plant',
+                answer: [
+                    'Pick Water Pot',
+                    'Walk to Plant',
+                    'Pour Water Carefully'
+                ],
+                hint: 'Take water → move → pour'
+            },
+            {
+                id: 'robot-1',
+                title: 'Start the Robot',
+                answer: [
+                    'Connect Battery',
+                    'Press Start Button',
+                    'Robot Boots Up'
+                ],
+                hint: 'Battery first, then start'
+            },
+            {
+                id: 'snack-1',
+                title: 'Make a Snack',
+                answer: [
+                    'Put Bread on Plate',
+                    'Spread Jam',
+                    'Serve to Friend'
+                ],
+                hint: 'Plate → jam → serve'
+            }
+        ];
+
+        // state
+        let current = null;
+        let shuffled = [];
+        let selectedIndex = null;
+        let timeLeft = 60;
+        let timerId = null;
+
+        const blocksEl = document.getElementById('blocks');
+        const titleEl = document.getElementById('puzzleTitle');
+        const hintEl = document.getElementById('hintText');
+        const timerEl = document.getElementById('timer');
+        const overlay = document.getElementById('overlay');
+        const popupContent = document.getElementById('popupContent');
+
+        function pickPuzzle() {
+            const p = puzzles[Math.floor(Math.random() * puzzles.length)];
+            current = p;
+            resetForPuzzle(p);
+        }
+
+        function resetForPuzzle(p) {
+            // shuffle answer to create puzzle
+            shuffled = shuffleArray([...p.answer]);
+            renderBlocks();
+            selectedIndex = null;
+            titleEl.textContent = p.title;
+            hintEl.textContent = 'Hint: ' + p.hint;
+            timeLeft = 60;
+            timerEl.textContent = timeLeft;
+            stopTimer();
+            startTimer();
+        }
+
+        function renderBlocks() {
+            blocksEl.innerHTML = '';
+            shuffled.forEach((txt, idx) => {
+                const div = document.createElement('div');
+                div.className = 'block small';
+                div.dataset.idx = idx;
+                div.innerHTML = `<span>${txt}</span><span style="opacity:0.5">#${idx + 1}</span>`;
+                div.addEventListener('click', () => onBlockClick(idx));
+                if (idx === selectedIndex) div.style.outline = '3px solid rgba(74,144,226,0.7)';
+                blocksEl.appendChild(div);
+            });
+        }
+
+        function onBlockClick(idx) {
+            if (selectedIndex === null) {
+                selectedIndex = idx;
+                renderBlocks();
+                return;
+            }
+            if (selectedIndex === idx) {
+                selectedIndex = null; renderBlocks(); return;
+            }
+            // swap
+            const a = shuffled[selectedIndex];
+            shuffled[selectedIndex] = shuffled[idx];
+            shuffled[idx] = a;
+            selectedIndex = null;
+            renderBlocks();
+        }
+
+        function checkAnswer() {
+            const correct = arraysEqual(shuffled, current.answer);
+            if (correct) {
+                onSolve();
+            } else {
+                showPopup(false);
+            }
+        }
+
+        function onSolve() {
+            stopTimer();
+            showPopup(true);
+            // call hook for tablet/robot integration
+            try {
+                if (window.onSuccess && typeof window.onSuccess === 'function') {
+                    window.onSuccess({ puzzleId: current.id, timeLeft });
+                }
+            } catch (e) { console.warn(e); }
+        }
+
+        function showPopup(s) {
+            overlay.style.display = 'flex';
+            if (s) {
+                popupContent.innerHTML = `<div class="successEmoji">🎉</div><div style="font-weight:800;font-size:18px">Well done!</div><div style="margin-top:6px">Blessing unlocked — show this to the robot tablet.</div>`;
+            } else {
+                popupContent.innerHTML = `<div style="font-weight:800;font-size:18px">Not yet</div><div style="margin-top:6px">Try swapping blocks and check again.</div>`;
+            }
+        }
+
+        document.getElementById('closePopup').addEventListener('click', () => overlay.style.display = 'none');
+        document.getElementById('shuffleBtn').addEventListener('click', () => pickPuzzle());
+        document.getElementById('checkBtn').addEventListener('click', () => checkAnswer());
+        document.getElementById('showAnswer').addEventListener('click', () => {
+            overlay.style.display = 'flex';
+            popupContent.innerHTML = `<div style="font-weight:800;font-size:18px">Answer</div><div style="margin-top:8px;text-align:left">${current.answer.map((x, i) => `<div>#${i + 1} — ${x}</div>`).join('')}</div>`;
+        });
+
+        function startTimer() {
+            if (timerId) clearInterval(timerId);
+            timerId = setInterval(() => {
+                timeLeft--;
+                timerEl.textContent = timeLeft;
+                if (timeLeft <= 0) {
+                    clearInterval(timerId);
+                    timerId = null;
+                    showPopup(false);
+                }
+            }, 1000);
+        }
+
+        function stopTimer() { if (timerId) clearInterval(timerId); timerId = null; }
+
+        function arraysEqual(a, b) { if (a.length !== b.length) return false; for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) return false; return true; }
+
+        function shuffleArray(arr) {
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        // expose default onSuccess hook (plays a little sound)
+        window.onSuccess = function (data) {
+            try {
+                const s = new Audio('https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg');
+                s.play().catch(() => { });
+            } catch (e) { }
+        };
+
+        pickPuzzle();
+    </script>
+</body>
+
+</html>
