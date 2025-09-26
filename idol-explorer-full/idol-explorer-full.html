@@ -59,7 +59,17 @@
       box-shadow: 0 10px 30px rgba(2, 6, 23, 0.06)
     }
 
+    /* NEW: idolWrap that holds image + overlays */
+    .idolWrap {
+      position: relative;
+      width: 100%;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #f8fafc;
+    }
+
     .imgWrap {
+      /* keep existing id usage: this now sits inside idolWrap */
       position: relative;
       border-radius: 12px;
       overflow: hidden;
@@ -227,6 +237,68 @@
       box-shadow: 0 8px 20px rgba(2, 6, 23, 0.06)
     }
 
+    /* ---- Overlay buttons (hidden on desktop) ---- */
+    .overlayButtons {
+      display: none;
+      /* shown only on mobile via media query */
+      position: absolute;
+      top: 10px;
+      z-index: 80;
+      pointer-events: auto;
+    }
+
+    .overlayButtons.left {
+      left: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      align-items: flex-start;
+    }
+
+    .overlayButtons.right {
+      right: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      align-items: flex-end;
+    }
+
+    .overlayButtons .btn {
+      padding: 8px 10px;
+      border-radius: 10px;
+      font-size: 13px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
+    }
+
+    @media (max-width: 768px) {
+
+      /* Hide the header controls on small screens */
+      .controls {
+        display: none !important;
+      }
+
+      /* Keep header title visible but smaller */
+      .header>div:first-child h1 {
+        font-size: 16px;
+      }
+
+      /* Show overlay buttons (on top of image) */
+      .overlayButtons {
+        display: flex;
+      }
+
+      /* Slightly reduce badge size for mobile */
+      .badge {
+        padding: 6px 8px;
+        font-size: 13px;
+      }
+
+      /* make image wrap use full width without extra padding */
+      .imgWrap {
+        padding: 0;
+      }
+    }
+
     @media(max-width:720px) {
       .header {
         flex-direction: column;
@@ -265,10 +337,30 @@
         <button class="btn" id="downloadCert">Download Certificate</button>
       </div>
     </div>
+
     <div class="card">
-      <div class="imgWrap" id="imgWrap" style="padding:10px"><img id="idol" src="assets/durga_idol.jpg"
-          alt="Durga Idol">
+      <!-- NEW: idolWrap contains the image and the mobile-only overlay buttons -->
+      <div class="idolWrap">
+        <!-- Left overlay (modes) - uses same IDs so your JS works unchanged -->
+        <div class="overlayButtons left" aria-hidden="true">
+          <button class="btn" id="modeSawari_mobile">Discover Vahaans</button>
+          <button class="btn" id="modeWeapons_mobile">Shakti and Symbols</button>
+          <button class="btn" id="modeGods_mobile">Name the Gods</button>
+        </div>
+
+        <!-- Right overlay (utilities) -->
+        <div class="overlayButtons right" aria-hidden="true">
+          <button class="btn" id="downloadCert_mobile">Certificate</button>
+          <button class="btn" id="selfieBtn_mobile">Selfie</button>
+          <button class="btn" id="shareBtn_mobile">Share</button>
+        </div>
+
+        <!-- existing image wrapper (hotspots render inside this) -->
+        <div class="imgWrap" id="imgWrap" style="padding:10px">
+          <img id="idol" src="assets/durga_idol.jpg" alt="Durga Idol">
+        </div>
       </div>
+
       <div style="margin-top:12px;display:flex;align-items:center;gap:12px">
         <div style="font-weight:800">Mode: <span id="currentMode">Sawari</span></div>
         <div style="flex:1;background:#eef2f7;height:12px;border-radius:999px;overflow:hidden">
@@ -295,6 +387,7 @@
         style="background:#eee;padding:8px;border-radius:8px;border:none">Close</button></div>
   </div>
   <div id="toastRoot"></div>
+
   <script>
     // simple app loader: loads hotspots.json and wires UI
     let HOTSPOTS = {};
@@ -533,6 +626,26 @@
     let lastCompositeBlob = null;
 
     document.addEventListener('click', function (e) {
+      // wire mobile overlay buttons to the main logic by forwarding clicks
+      if (e.target && e.target.id === 'modeSawari_mobile') {
+        document.getElementById('modeSawari').click();
+      }
+      if (e.target && e.target.id === 'modeWeapons_mobile') {
+        document.getElementById('modeWeapons').click();
+      }
+      if (e.target && e.target.id === 'modeGods_mobile') {
+        document.getElementById('modeGods').click();
+      }
+      if (e.target && e.target.id === 'downloadCert_mobile') {
+        document.getElementById('downloadCert').click();
+      }
+      if (e.target && e.target.id === 'selfieBtn_mobile') {
+        document.getElementById('selfieBtn').click();
+      }
+      if (e.target && e.target.id === 'shareBtn_mobile') {
+        document.getElementById('shareBtn').click();
+      }
+
       if (e.target && e.target.id === 'selfieBtn') { startSelfieCapture(); }
       if (e.target && e.target.id === 'shareBtn') {
         if (lastCompositeBlob) {
@@ -652,6 +765,25 @@
       document.getElementById('modeGods').addEventListener('click', () => { mode = 'gods'; renderHotspots(); });
       document.getElementById('modeDemons').addEventListener('click', () => { mode = 'demons'; renderHotspots(); });
       document.getElementById('downloadCert').addEventListener('click', downloadCertificate);
+
+      // ensure mobile overlay buttons update text accessibility attributes
+      const syncMobileLabels = () => {
+        const left = document.querySelector('.overlayButtons.left');
+        const right = document.querySelector('.overlayButtons.right');
+        if (!left || !right) return;
+        // mirror text from header buttons so it's always in sync
+        left.querySelector('#modeSawari_mobile').textContent = document.getElementById('modeSawari').textContent;
+        left.querySelector('#modeWeapons_mobile').textContent = document.getElementById('modeWeapons').textContent;
+        left.querySelector('#modeGods_mobile').textContent = document.getElementById('modeGods').textContent;
+        right.querySelector('#downloadCert_mobile').textContent = 'Certificate';
+        right.querySelector('#selfieBtn_mobile').textContent = 'Selfie';
+        right.querySelector('#shareBtn_mobile').textContent = 'Share';
+      };
+
+      syncMobileLabels();
+      // also sync on resize in case header text is edited dynamically
+      window.addEventListener('resize', syncMobileLabels);
+
       renderHotspots(); updateProgress(); updateVoiceIndicator();
     }
   </script>
